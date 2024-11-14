@@ -2,11 +2,12 @@ package com.merchantsolutions
 
 import org.http4k.core.*
 import com.merchantsolutions.AuctionJson.auto
+import org.http4k.core.Method.POST
 
 class SellerActor(val client: HttpHandler) {
 
-    fun registerProduct() {
-        client(Request(Method.POST, "/register-product").with(Product.lens of Product("candle-sticks")))
+    fun registerProduct(product: Product) {
+        client(Request(POST, "/register-product").with(Product.lens of product))
     }
 
     data class Product(val description: String) {
