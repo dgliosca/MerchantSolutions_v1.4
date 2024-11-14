@@ -22,5 +22,3 @@ class AuctionServerTest {
         assertThat(auctionList, equalTo(emptyList()))
     }
 }
-
-class Auction

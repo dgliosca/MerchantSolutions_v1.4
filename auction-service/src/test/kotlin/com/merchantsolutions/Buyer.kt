@@ -11,3 +11,5 @@ class Buyer(val client: HttpHandler) {
 
     private val activeAuctions = Body.auto<List<Auction>>().toLens()
 }
+
+class Auction
