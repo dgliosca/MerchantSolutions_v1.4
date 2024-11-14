@@ -1,4 +1,4 @@
-package com.merchantsolutions
+package com.merchantsolutions.drivers.http
 
 import com.merchantsolutions.AuctionJson.auto
 import org.http4k.core.*
