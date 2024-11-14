@@ -1,7 +1,6 @@
 package com.merchantsolutions
 
 import org.http4k.core.*
-import org.http4k.core.Method.POST
 import org.junit.jupiter.api.Test
 import com.merchantsolutions.AuctionJson.auto
 import com.natpryce.hamkrest.assertion.assertThat
@@ -13,19 +12,6 @@ class AuctionServerTest {
 
     private val seller = Seller(auctionServer)
     private val buyer = Buyer(auctionServer)
-
-    class Seller(val client: HttpHandler) {
-
-        fun registerProduct() {
-            client(Request(POST, "/register-product").with(Product.lens of Product("candle-sticks")))
-        }
-
-        data class Product(val description: String) {
-            companion object {
-                val lens = Body.auto<Product>().toLens()
-            }
-        }
-    }
 
     class Buyer(val client: HttpHandler) {
         fun listAuctions() = activeAuctions(client(Request(GET, "/active-auctions")))
