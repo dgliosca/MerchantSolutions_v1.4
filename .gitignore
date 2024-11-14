@@ -5,10 +5,10 @@ build/
 !**/src/test/**/build/
 
 ### IntelliJ IDEA ###
-/.idea/
 .idea/
-*.iws
+.idea/*.xml
 *.iml
+*.iws
 *.ipr
 out/
 !**/src/main/**/out/
