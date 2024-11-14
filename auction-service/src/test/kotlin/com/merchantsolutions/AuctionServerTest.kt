@@ -2,15 +2,11 @@ package com.merchantsolutions
 
 import org.http4k.core.*
 import org.http4k.core.Method.POST
-import org.http4k.core.Status.Companion.OK
-import org.http4k.routing.bind
-import org.http4k.routing.routes
 import org.junit.jupiter.api.Test
 import com.merchantsolutions.AuctionJson.auto
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
 import org.http4k.core.Method.GET
-import org.http4k.routing.RoutingHttpHandler
 
 class AuctionServerTest {
     private val auctionServer: HttpHandler = auctionApp()
@@ -49,17 +45,4 @@ class AuctionServerTest {
     }
 }
 
-fun auctionApp(): RoutingHttpHandler {
-    return routes(
-        "/register-product" bind POST to { Response(OK) },
-        "/active-auctions" bind GET to { Response(OK).with(AuctionResult.lens of listOf()) }
-    )
-}
-
 class Auction
-class AuctionResult {
-    companion object {
-        val lens = Body.auto<List<Auction>>().toLens()
-    }
-
-}
