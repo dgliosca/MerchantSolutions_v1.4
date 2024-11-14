@@ -9,7 +9,8 @@ import org.junit.jupiter.api.Test
 import com.merchantsolutions.AuctionJson.auto
 
 class AuctionServerTest {
-    private val auctionServer: HttpHandler = routes("/register-product" bind POST to { Response(OK) })
+    private val auctionServer: HttpHandler = auctionApp()
+
     private val seller = Seller(auctionServer)
 
     class Seller(val client: HttpHandler) {
@@ -17,6 +18,7 @@ class AuctionServerTest {
         fun registerProduct() {
             client(Request(POST, "/register-product").with(Product.lens of Product("candle-sticks")))
         }
+
         data class Product(val description: String) {
             companion object {
                 val lens = Body.auto<Product>().toLens()
@@ -29,3 +31,5 @@ class AuctionServerTest {
         seller.registerProduct()
     }
 }
+
+fun auctionApp() = routes("/register-product" bind POST to { Response(OK) })
