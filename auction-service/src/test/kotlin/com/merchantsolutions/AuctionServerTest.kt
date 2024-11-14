@@ -8,7 +8,7 @@ import com.natpryce.hamkrest.equalTo
 class AuctionServerTest {
     private val auctionServer: HttpHandler = auctionApp()
 
-    private val seller = Seller(auctionServer)
+    private val seller = SellerActor(auctionServer)
     private val buyer = Buyer(auctionServer)
 
     @Test
