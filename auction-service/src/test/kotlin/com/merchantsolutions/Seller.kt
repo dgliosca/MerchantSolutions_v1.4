@@ -3,7 +3,6 @@ package com.merchantsolutions
 import org.http4k.core.*
 import com.merchantsolutions.AuctionJson.auto
 
-
 class Seller(val client: HttpHandler) {
 
     fun registerProduct() {
