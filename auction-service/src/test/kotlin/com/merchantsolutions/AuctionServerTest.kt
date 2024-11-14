@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.hasElement
+import com.natpryce.hamkrest.isEmpty
+import org.junit.jupiter.api.fail
 
 class AuctionServerTest {
     private val auctionServer: HttpHandler = auctionApp(AuctionHub())
@@ -26,20 +28,22 @@ class AuctionServerTest {
         assertThat(auctionList, equalTo(emptyList()))
     }
 
-//    @Test
-//    fun `there is one auction to bid`() {
-//        seller.registerProduct()
-//        backOffice.startAuction()
-//
-//        val auctionList = buyer.listAuctions()
-//        assertThat(auctionList, !isEmpty)
-//    }
-
     @Test
     fun `backoffice list products to start selling`() {
         seller.registerProduct(SellerActor.Product("Candle Sticks"))
         val products = backOffice.listProducts()
 
         assertThat(products.map { it.description }, hasElement("Candle Sticks"))
+    }
+
+    @Test
+    fun `there is one auction to bid`() {
+        seller.registerProduct(SellerActor.Product("Antique Vase"))
+        val product = backOffice.listProducts()
+            .find { it.description == "Antique Vase" } ?: fail("Couldn't find product")
+        backOffice.startAuction(product.id)
+
+        val auctionList = buyer.listAuctions()
+        assertThat(auctionList, !isEmpty)
     }
 }
