@@ -29,8 +29,7 @@ class AuctionServerTest {
 
     @Test
     fun `there are no auction to bid`() {
-        val auctionList = buyer.listAuctions()
-        assertThat(auctionList, equalTo(emptyList()))
+        assertThat(buyer.listAuctions(), equalTo(emptyList()))
     }
 
     @Test
