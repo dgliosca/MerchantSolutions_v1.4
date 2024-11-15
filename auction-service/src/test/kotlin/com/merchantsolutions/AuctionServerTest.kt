@@ -10,7 +10,6 @@ import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.hasElement
 import com.natpryce.hamkrest.isEmpty
-import org.http4k.client.OkHttp
 import org.junit.jupiter.api.fail
 import java.math.BigDecimal
 import kotlin.lazy
@@ -75,6 +74,6 @@ class AuctionServerTest {
         buyer.placeABid(auction, Money(gbp, BigDecimal("12.13")))
         backOffice.closeAuction(product.id)
 
-        buyer.hasLostAuction(auction)
+        assertThat(buyer.auctionResult(auction).outcome, equalTo(AuctionOutcome.youLost))
     }
 }

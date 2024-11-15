@@ -14,9 +14,9 @@ class BuyerActor(val client: HttpHandler) {
         return client(Request(Method.POST, "/bid").with(bidLens of Bid(auction.productId, price)))
     }
 
-    fun hasLostAuction(auction: Auction) {
+    fun auctionResult(auction: Auction): AuctionResult {
         val response = client(Request(GET, "/auction-result").with(id of auction.productId))
-        assertThat(auctionResult(response).outcome, equalTo(AuctionOutcome.youLost))
+        return auctionResult(response)
     }
 
     private val activeAuctions = Body.auto<List<Auction>>().toLens()
