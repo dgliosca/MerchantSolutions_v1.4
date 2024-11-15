@@ -3,6 +3,8 @@ package com.merchantsolutions.drivers.http
 import com.merchantsolutions.AuctionJson.auto
 import com.merchantsolutions.application.AuctionHub
 import com.merchantsolutions.domain.Auction
+import com.merchantsolutions.domain.AuctionResult.AuctionClosed
+import com.merchantsolutions.domain.AuctionResult.AuctionInProgress
 import com.merchantsolutions.domain.Product
 import com.merchantsolutions.domain.ProductToRegister
 import org.http4k.core.*
@@ -39,10 +41,20 @@ fun auctionApp(auctionHub: AuctionHub): RoutingHttpHandler {
             val id = uuid(request)
             auctionHub.closeAuctionFor(id)
             Response(OK)
+        },
+        "/auction-result" bind GET to { request ->
+            val productId = uuid(request)
+            val auctionResultFor = auctionHub.auctionResultFor(productId)
+            when (auctionResultFor) {
+                is AuctionClosed -> Response(OK).with(auctionClosedLens of auctionResultFor)
+                is AuctionInProgress -> Response(OK).with(auctionInProgressLens of auctionResultFor)
+            }
         }
     )
 }
 
+val auctionClosedLens = Body.auto<AuctionClosed>().toLens()
+val auctionInProgressLens = Body.auto<AuctionInProgress>().toLens()
 val listProductsLens = Body.auto<List<Product>>().toLens()
 val productToRegisterLens = Body.auto<ProductToRegister>().toLens()
 val uuid = Body.auto<UUID>().toLens()

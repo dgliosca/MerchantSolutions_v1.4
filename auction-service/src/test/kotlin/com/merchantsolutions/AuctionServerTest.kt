@@ -10,14 +10,16 @@ import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.hasElement
 import com.natpryce.hamkrest.isEmpty
+import org.http4k.client.OkHttp
 import org.junit.jupiter.api.fail
 import java.math.BigDecimal
+import kotlin.lazy
 
 class AuctionServerTest {
-    private val auctionServer: HttpHandler = auctionApp(AuctionHub())
 
+    private val buyer: BuyerActor by lazy { BuyerActor(auctionServer) }
+    private val auctionServer: HttpHandler by lazy { auctionApp(AuctionHub()) }
     private val seller = SellerActor(auctionServer)
-    private val buyer = BuyerActor(auctionServer)
     private val backOffice = BackOfficeActor(auctionServer)
 
     @Test
@@ -60,5 +62,19 @@ class AuctionServerTest {
         val auction = buyer.listAuctions().first()
         buyer.placeABid(auction, Money(gbp, BigDecimal("12.13")))
         backOffice.closeAuction(product.id)
+    }
+
+    @Test
+    fun `buyer lost auction`() {
+        seller.registerProduct(SellerActor.Product("Antique Vase"))
+        val product = backOffice.listProducts()
+            .find { it.description == "Antique Vase" } ?: fail("Couldn't find product")
+        backOffice.startAuction(product.id)
+
+        val auction = buyer.listAuctions().first()
+        buyer.placeABid(auction, Money(gbp, BigDecimal("12.13")))
+        backOffice.closeAuction(product.id)
+
+        buyer.hasLostAuction(auction)
     }
 }
