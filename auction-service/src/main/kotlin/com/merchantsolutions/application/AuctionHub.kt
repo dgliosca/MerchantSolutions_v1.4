@@ -1,20 +1,20 @@
 package com.merchantsolutions.application
 
 import com.merchantsolutions.domain.Auction
+import com.merchantsolutions.domain.AuctionId
 import com.merchantsolutions.domain.AuctionOutcome
 import com.merchantsolutions.domain.AuctionResult
-import com.merchantsolutions.domain.AuctionState
 import com.merchantsolutions.domain.AuctionState.closed
 import com.merchantsolutions.domain.AuctionState.opened
+import com.merchantsolutions.domain.IdGenerator
 import com.merchantsolutions.domain.Money
 import com.merchantsolutions.domain.Money.Companion.gbp
 import com.merchantsolutions.domain.Product
 import com.merchantsolutions.domain.ProductToRegister
-import org.http4k.core.Response
 import java.math.BigDecimal
 import java.util.*
 
-class AuctionHub() {
+class AuctionHub(val idGenerator: IdGenerator) {
 //    private val bids = mutableListOf<Bid>()
     private val products = mutableListOf<Product>()
     private val auctions = mutableListOf<Auction>()
@@ -28,7 +28,8 @@ class AuctionHub() {
         return if (products.find { it.id == id } == null) {
             false
         } else {
-            val auction = Auction(id, opened)
+            val auctionId = AuctionId(idGenerator())
+            val auction = Auction(auctionId, id, opened)
             auctions.add(auction)
             true
         }
@@ -49,5 +50,11 @@ class AuctionHub() {
             opened -> AuctionResult.AuctionInProgress
             closed -> AuctionResult.AuctionClosed(AuctionOutcome.youLost, Money(gbp, BigDecimal(0.0)))
         }
+    }
+
+    fun createAuction(productId: UUID): AuctionId {
+        val auctionId = AuctionId(idGenerator())
+        auctions.add(Auction(auctionId, productId))
+        return auctionId
     }
 }

@@ -1,6 +1,7 @@
 package com.merchantsolutions
 
 import com.merchantsolutions.AuctionJson.auto
+import com.merchantsolutions.domain.ProductId
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
 import org.http4k.core.Body
@@ -25,6 +26,10 @@ class BackOfficeActor(private val client: HttpHandler) {
     fun listProducts(): List<BackOfficeProduct> = backOfficeProducts(client(Request(GET, "/products")))
     fun closeAuction(id: UUID) {
         client(Request(POST, "/close-auction").with(productIdLens of id))
+    }
+
+    fun createAuction(product: ProductId) {
+        client(Request(POST, "/create-auction").with(productIdLens of product.value))
     }
 }
 

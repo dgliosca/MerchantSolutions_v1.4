@@ -1,10 +1,8 @@
 package com.merchantsolutions
 
 import com.merchantsolutions.AuctionJson.auto
-import com.merchantsolutions.AuctionJson.json
+import com.merchantsolutions.domain.AuctionId
 import com.merchantsolutions.domain.Money
-import com.natpryce.hamkrest.assertion.assertThat
-import com.natpryce.hamkrest.equalTo
 import org.http4k.core.*
 import org.http4k.core.Method.GET
 import org.http4k.core.Method.POST
@@ -32,7 +30,7 @@ enum class AuctionOutcome {
     youWin, youLost
 }
 
-data class Auction(val productId: UUID, val state: State)
+data class Auction(val auctionId: AuctionId, val productId: UUID, val state: State)
 data class Bid(val productId: UUID, val price: Money)
 enum class State {
     opened, closed

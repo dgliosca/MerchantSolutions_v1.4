@@ -3,6 +3,7 @@ package com.merchantsolutions
 import com.merchantsolutions.application.AuctionHub
 import com.merchantsolutions.domain.Money
 import com.merchantsolutions.domain.Money.Companion.gbp
+import com.merchantsolutions.domain.ProductId
 import com.merchantsolutions.drivers.http.auctionApp
 import org.http4k.core.*
 import org.junit.jupiter.api.Test
@@ -17,7 +18,7 @@ import kotlin.lazy
 class AuctionServerTest {
 
     private val buyer: BuyerActor by lazy { BuyerActor(auctionServer) }
-    private val auctionServer: HttpHandler by lazy { auctionApp(AuctionHub()) }
+    private val auctionServer: HttpHandler by lazy { auctionApp(AuctionHub(testing)) }
     private val seller = SellerActor(auctionServer)
     private val backOffice = BackOfficeActor(auctionServer)
 
@@ -45,6 +46,7 @@ class AuctionServerTest {
         seller.registerProduct(SellerActor.Product("Antique Vase"))
         val product = backOffice.listProducts()
             .find { it.description == "Antique Vase" } ?: fail("Couldn't find product")
+        backOffice.createAuction(ProductId(product.id))
         backOffice.startAuction(product.id)
 
         val auctionList = buyer.listAuctions()

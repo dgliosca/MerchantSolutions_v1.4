@@ -17,6 +17,8 @@ import org.http4k.routing.bind
 import org.http4k.routing.routes
 import java.util.*
 import com.merchantsolutions.AuctionJson.json
+import com.merchantsolutions.domain.AuctionId
+
 fun auctionApp(auctionHub: AuctionHub): RoutingHttpHandler {
 
     return routes(
@@ -25,9 +27,11 @@ fun auctionApp(auctionHub: AuctionHub): RoutingHttpHandler {
             auctionHub.add(productToRegister)
             Response(OK)
         },
-//        "/bid" bind POST to { request ->
-//
-//        },
+        "/create-auction" bind POST to { request->
+            val productId = request.json<UUID>()
+            val auctionId = auctionHub.createAuction(productId)
+            Response(OK).with(auctionIdLens of auctionId)
+        },
         "/active-auctions" bind GET to { Response(OK).with(AuctionResult.lens of auctionHub.activeAuctions()) },
         "/start-auction" bind POST to { request ->
             val id = uuid(request)
@@ -58,8 +62,8 @@ fun auctionApp(auctionHub: AuctionHub): RoutingHttpHandler {
 
 val auctionClosedLens = Body.auto<AuctionClosed>().toLens()
 val auctionInProgressLens = Body.auto<AuctionInProgress>().toLens()
+val auctionIdLens = Body.auto<AuctionId>().toLens()
 val listProductsLens = Body.auto<List<Product>>().toLens()
-val productToRegisterLens = Body.auto<ProductToRegister>().toLens()
 val uuid = Body.auto<UUID>().toLens()
 
 private class AuctionResult {
