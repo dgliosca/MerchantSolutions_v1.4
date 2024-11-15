@@ -68,7 +68,7 @@ class AuctionServerTest {
     }
 
     @Test
-    fun `buyer lost auction`() {
+    fun `buyer place a bid and win`() {
         seller.registerProduct(SellerActor.Product("Antique Vase"))
         val product = backOffice.listProducts()
             .find { it.description == "Antique Vase" } ?: fail("Couldn't find product")
@@ -88,21 +88,4 @@ class AuctionServerTest {
             )
         )
     }
-
-//    @Test
-//    fun `buyer win auction`() {
-//        seller.registerProduct(SellerActor.Product("Antique Vase"))
-//        val product = backOffice.listProducts()
-//            .find { it.description == "Antique Vase" } ?: fail("Couldn't find product")
-//
-//        val auctionId = backOffice.createAuction(ProductId(product.id))
-//        backOffice.startAuction(auctionId)
-//
-//        val auction = buyer.listAuctions().first()
-//        buyer.placeABid(auction, Money(gbp, BigDecimal("12.13")))
-//        backOffice.closeAuction(product.id)
-//
-//        assertThat(buyer.auctionResult(auction).outcome, equalTo(AuctionOutcome.youLost))
-//        assertThat(buyer.auctionResult(auction).winningBid, equalTo(Money(gbp, BigDecimal("12.13"))))
-//    }
 }
