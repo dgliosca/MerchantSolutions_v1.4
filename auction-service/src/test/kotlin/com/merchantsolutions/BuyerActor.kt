@@ -1,17 +1,19 @@
 package com.merchantsolutions
 
 import com.merchantsolutions.AuctionJson.auto
+import com.merchantsolutions.AuctionJson.json
 import com.merchantsolutions.domain.Money
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
 import org.http4k.core.*
 import org.http4k.core.Method.GET
+import org.http4k.core.Method.POST
 import java.util.*
 
 class BuyerActor(val client: HttpHandler) {
     fun listAuctions() = activeAuctions(client(Request(GET, "/active-auctions")))
     fun placeABid(auction: Auction, price: Money): Response {
-        return client(Request(Method.POST, "/bid").with(bidLens of Bid(auction.productId, price)))
+        return client(Request(method = POST, "/bid").with(bidLens of Bid(auction.productId, price)))
     }
 
     fun auctionResult(auction: Auction): AuctionResult {

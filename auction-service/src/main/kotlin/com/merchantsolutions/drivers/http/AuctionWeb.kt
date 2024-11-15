@@ -16,15 +16,18 @@ import org.http4k.routing.RoutingHttpHandler
 import org.http4k.routing.bind
 import org.http4k.routing.routes
 import java.util.*
-
+import com.merchantsolutions.AuctionJson.json
 fun auctionApp(auctionHub: AuctionHub): RoutingHttpHandler {
 
     return routes(
         "/register-product" bind POST to { request ->
-            val product = productToRegisterLens(request)
-            auctionHub.add(product)
+            val productToRegister = request.json<ProductToRegister>()
+            auctionHub.add(productToRegister)
             Response(OK)
         },
+//        "/bid" bind POST to { request ->
+//
+//        },
         "/active-auctions" bind GET to { Response(OK).with(AuctionResult.lens of auctionHub.activeAuctions()) },
         "/start-auction" bind POST to { request ->
             val id = uuid(request)

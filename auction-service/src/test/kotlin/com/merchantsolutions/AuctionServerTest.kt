@@ -76,4 +76,19 @@ class AuctionServerTest {
 
         assertThat(buyer.auctionResult(auction).outcome, equalTo(AuctionOutcome.youLost))
     }
+
+//    @Test
+//    fun `buyer win auction`() {
+//        seller.registerProduct(SellerActor.Product("Antique Vase"))
+//        val product = backOffice.listProducts()
+//            .find { it.description == "Antique Vase" } ?: fail("Couldn't find product")
+//        backOffice.startAuction(product.id)
+//
+//        val auction = buyer.listAuctions().first()
+//        buyer.placeABid(auction, Money(gbp, BigDecimal("12.13")))
+//        backOffice.closeAuction(product.id)
+//
+//        assertThat(buyer.auctionResult(auction).outcome, equalTo(AuctionOutcome.youLost))
+//        assertThat(buyer.auctionResult(auction).winningBid, equalTo(Money(gbp, BigDecimal("12.13"))))
+//    }
 }
