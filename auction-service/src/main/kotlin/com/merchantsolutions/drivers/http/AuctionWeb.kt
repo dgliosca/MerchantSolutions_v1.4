@@ -1,23 +1,27 @@
 package com.merchantsolutions.drivers.http
 
 import com.merchantsolutions.AuctionJson.auto
+import com.merchantsolutions.AuctionJson.json
 import com.merchantsolutions.application.AuctionHub
 import com.merchantsolutions.domain.Auction
+import com.merchantsolutions.domain.AuctionId
 import com.merchantsolutions.domain.AuctionResult.AuctionClosed
 import com.merchantsolutions.domain.AuctionResult.AuctionInProgress
+import com.merchantsolutions.domain.BidWithUser
+import com.merchantsolutions.domain.Money
 import com.merchantsolutions.domain.Product
 import com.merchantsolutions.domain.ProductToRegister
 import org.http4k.core.*
 import org.http4k.core.Method.GET
 import org.http4k.core.Method.POST
 import org.http4k.core.Status.Companion.CONFLICT
+import org.http4k.core.Status.Companion.FORBIDDEN
 import org.http4k.core.Status.Companion.OK
+import org.http4k.lens.bearerToken
 import org.http4k.routing.RoutingHttpHandler
 import org.http4k.routing.bind
 import org.http4k.routing.routes
 import java.util.*
-import com.merchantsolutions.AuctionJson.json
-import com.merchantsolutions.domain.AuctionId
 
 fun auctionApp(auctionHub: AuctionHub): RoutingHttpHandler {
 
@@ -56,9 +60,18 @@ fun auctionApp(auctionHub: AuctionHub): RoutingHttpHandler {
                 is AuctionClosed -> Response(OK).with(auctionClosedLens of auctionResultFor)
                 is AuctionInProgress -> Response(OK).with(auctionInProgressLens of auctionResultFor)
             }
-        }
+        },
+        "/bid" bind POST to earlyReturn@{ request ->
+            val token = request.bearerToken()
+            val userId = auctionHub.validateToken(token)?: return@earlyReturn Response(FORBIDDEN)
+            val bid = request.json<Bid>()
+
+            auctionHub.add(BidWithUser(bid.auctionId, userId, bid.price))
+            Response(OK)
+        },
     )
 }
+
 
 val auctionClosedLens = Body.auto<AuctionClosed>().toLens()
 val auctionInProgressLens = Body.auto<AuctionInProgress>().toLens()
@@ -66,6 +79,7 @@ val auctionIdLens = Body.auto<AuctionId>().toLens()
 val listProductsLens = Body.auto<List<Product>>().toLens()
 val uuid = Body.auto<UUID>().toLens()
 
+private data class Bid(val auctionId: AuctionId, val price: Money)
 private class AuctionResult {
     companion object {
         val lens = Body.auto<List<Auction>>().toLens()

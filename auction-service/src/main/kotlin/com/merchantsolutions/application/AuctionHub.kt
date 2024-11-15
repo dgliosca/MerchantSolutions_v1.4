@@ -2,20 +2,18 @@ package com.merchantsolutions.application
 
 import com.merchantsolutions.domain.Auction
 import com.merchantsolutions.domain.AuctionId
-import com.merchantsolutions.domain.AuctionOutcome
 import com.merchantsolutions.domain.AuctionResult
 import com.merchantsolutions.domain.AuctionState.closed
 import com.merchantsolutions.domain.AuctionState.opened
+import com.merchantsolutions.domain.BidWithUser
 import com.merchantsolutions.domain.IdGenerator
-import com.merchantsolutions.domain.Money
-import com.merchantsolutions.domain.Money.Companion.gbp
 import com.merchantsolutions.domain.Product
 import com.merchantsolutions.domain.ProductToRegister
-import java.math.BigDecimal
+import com.merchantsolutions.domain.UserId
 import java.util.*
 
 class AuctionHub(val idGenerator: IdGenerator) {
-    //    private val bids = mutableListOf<Bid>()
+    private val bids = mutableListOf<BidWithUser>()
     private val products = mutableListOf<Product>()
     private val auctions = mutableListOf<Auction>()
 
@@ -49,8 +47,14 @@ class AuctionHub(val idGenerator: IdGenerator) {
         val auction = auctions.find { it.productId == productId }
             ?: throw IllegalStateException("There is no auction for: $productId")
         return when (auction.state) {
-            opened -> AuctionResult.AuctionInProgress
-            closed -> AuctionResult.AuctionClosed(AuctionOutcome.youLost, Money(gbp, BigDecimal(0.0)))
+            opened -> {
+                AuctionResult.AuctionInProgress
+            }
+
+            closed -> {
+                val winningBid = bids.maxBy { it.price }
+                AuctionResult.AuctionClosed(winningBid.userId, winningBid.price)
+            }
         }
     }
 
@@ -58,5 +62,13 @@ class AuctionHub(val idGenerator: IdGenerator) {
         val auctionId = AuctionId(idGenerator())
         auctions.add(Auction(auctionId, productId))
         return auctionId
+    }
+
+    fun add(bid: BidWithUser) {
+        bids.add(bid)
+    }
+
+    fun validateToken(string: String?): UserId? {
+        return UserId(idGenerator())
     }
 }

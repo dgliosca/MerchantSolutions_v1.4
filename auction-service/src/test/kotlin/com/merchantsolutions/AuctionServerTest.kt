@@ -4,6 +4,7 @@ import com.merchantsolutions.application.AuctionHub
 import com.merchantsolutions.domain.Money
 import com.merchantsolutions.domain.Money.Companion.gbp
 import com.merchantsolutions.domain.ProductId
+import com.merchantsolutions.domain.UserId
 import com.merchantsolutions.drivers.http.auctionApp
 import org.http4k.core.*
 import org.junit.jupiter.api.Test
@@ -13,6 +14,7 @@ import com.natpryce.hamkrest.hasElement
 import com.natpryce.hamkrest.isEmpty
 import org.junit.jupiter.api.fail
 import java.math.BigDecimal
+import java.util.UUID
 import kotlin.lazy
 
 class AuctionServerTest {
@@ -77,7 +79,14 @@ class AuctionServerTest {
         buyer.placeABid(auction, Money(gbp, BigDecimal("12.13")))
         backOffice.closeAuction(product.id)
 
-        assertThat(buyer.auctionResult(auction).outcome, equalTo(AuctionOutcome.youLost))
+        assertThat(
+            buyer.auctionResult(auction), equalTo(
+                AuctionResult(
+                    UserId(UUID.fromString("00000000-0000-0000-0000-000000000001")),
+                    Money(gbp, BigDecimal("12.13"))
+                )
+            )
+        )
     }
 
 //    @Test
@@ -85,7 +94,9 @@ class AuctionServerTest {
 //        seller.registerProduct(SellerActor.Product("Antique Vase"))
 //        val product = backOffice.listProducts()
 //            .find { it.description == "Antique Vase" } ?: fail("Couldn't find product")
-//        backOffice.startAuction(product.id)
+//
+//        val auctionId = backOffice.createAuction(ProductId(product.id))
+//        backOffice.startAuction(auctionId)
 //
 //        val auction = buyer.listAuctions().first()
 //        buyer.placeABid(auction, Money(gbp, BigDecimal("12.13")))
