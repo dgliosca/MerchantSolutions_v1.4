@@ -1,6 +1,8 @@
 package com.merchantsolutions
 
 import com.merchantsolutions.AuctionJson.auto
+import com.merchantsolutions.AuctionJson.json
+import com.merchantsolutions.domain.AuctionId
 import com.merchantsolutions.domain.ProductId
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
@@ -15,11 +17,12 @@ import java.util.*
 
 private val backOfficeProducts = Body.auto<List<BackOfficeProduct>>().toLens()
 private val productIdLens = Body.auto<UUID>().toLens()
+private val auctionIdLens = Body.auto<AuctionId>().toLens()
 
 class BackOfficeActor(private val client: HttpHandler) {
 
-    fun startAuction(id: UUID) {
-        val result = client(Request(POST, "/start-auction").with(productIdLens of id))
+    fun startAuction(id: AuctionId) {
+        val result = client(Request(POST, "/start-auction").with(auctionIdLens of id))
         assertThat(result.status, equalTo(OK))
     }
 
@@ -28,8 +31,9 @@ class BackOfficeActor(private val client: HttpHandler) {
         client(Request(POST, "/close-auction").with(productIdLens of id))
     }
 
-    fun createAuction(product: ProductId) {
-        client(Request(POST, "/create-auction").with(productIdLens of product.value))
+    fun createAuction(product: ProductId) : AuctionId {
+        val response = client(Request(POST, "/create-auction").with(productIdLens of product.value))
+        return response.json<AuctionId>()
     }
 }
 

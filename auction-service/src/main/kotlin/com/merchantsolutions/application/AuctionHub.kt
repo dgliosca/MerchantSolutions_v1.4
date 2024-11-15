@@ -15,7 +15,7 @@ import java.math.BigDecimal
 import java.util.*
 
 class AuctionHub(val idGenerator: IdGenerator) {
-//    private val bids = mutableListOf<Bid>()
+    //    private val bids = mutableListOf<Bid>()
     private val products = mutableListOf<Product>()
     private val auctions = mutableListOf<Auction>()
 
@@ -24,13 +24,13 @@ class AuctionHub(val idGenerator: IdGenerator) {
     }
 
     fun listProducts(): List<Product> = products
-    fun activateAuctionFor(id: UUID): Boolean {
-        return if (products.find { it.id == id } == null) {
+    fun activateAuctionFor(id: AuctionId): Boolean {
+        val auction = auctions.find { it.auctionId == id }
+        return if (auction == null) {
             false
         } else {
-            val auctionId = AuctionId(idGenerator())
-            val auction = Auction(auctionId, id, opened)
-            auctions.add(auction)
+            auctions.remove(auction)
+            auctions.add(auction.copy(state = opened))
             true
         }
     }
@@ -38,15 +38,17 @@ class AuctionHub(val idGenerator: IdGenerator) {
     fun activeAuctions(): List<Auction> = auctions.filter { it.state == opened }
 
     fun closeAuctionFor(productId: UUID) {
-        val auction = auctions.find { it.productId == productId }?: throw IllegalStateException("There is no auction for: $productId")
+        val auction = auctions.find { it.productId == productId }
+            ?: throw IllegalStateException("There is no auction for: $productId")
         auction.copy(state = closed)
         auctions.remove(auction)
         auctions.add(auction.copy(state = closed))
     }
 
     fun auctionResultFor(productId: UUID): AuctionResult {
-        val auction = auctions.find { it.productId == productId }?: throw IllegalStateException("There is no auction for: $productId")
-        return when(auction.state) {
+        val auction = auctions.find { it.productId == productId }
+            ?: throw IllegalStateException("There is no auction for: $productId")
+        return when (auction.state) {
             opened -> AuctionResult.AuctionInProgress
             closed -> AuctionResult.AuctionClosed(AuctionOutcome.youLost, Money(gbp, BigDecimal(0.0)))
         }

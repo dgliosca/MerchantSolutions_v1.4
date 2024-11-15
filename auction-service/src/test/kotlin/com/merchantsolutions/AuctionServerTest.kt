@@ -45,8 +45,8 @@ class AuctionServerTest {
         seller.registerProduct(SellerActor.Product("Antique Vase"))
         val product = backOffice.listProducts()
             .find { it.description == "Antique Vase" } ?: fail("Couldn't find product")
-        backOffice.createAuction(ProductId(product.id))
-        backOffice.startAuction(product.id)
+        val auctionId = backOffice.createAuction(ProductId(product.id))
+        backOffice.startAuction(auctionId)
 
         val auctionList = buyer.listAuctions()
         assertThat(auctionList, !isEmpty)
@@ -57,7 +57,8 @@ class AuctionServerTest {
         seller.registerProduct(SellerActor.Product("Antique Vase"))
         val product = backOffice.listProducts()
             .find { it.description == "Antique Vase" } ?: fail("Couldn't find product")
-        backOffice.startAuction(product.id)
+        val auctionId = backOffice.createAuction(ProductId(product.id))
+        backOffice.startAuction(auctionId)
 
         val auction = buyer.listAuctions().first()
         buyer.placeABid(auction, Money(gbp, BigDecimal("12.13")))
@@ -69,7 +70,8 @@ class AuctionServerTest {
         seller.registerProduct(SellerActor.Product("Antique Vase"))
         val product = backOffice.listProducts()
             .find { it.description == "Antique Vase" } ?: fail("Couldn't find product")
-        backOffice.startAuction(product.id)
+        val auctionId = backOffice.createAuction(ProductId(product.id))
+        backOffice.startAuction(auctionId)
 
         val auction = buyer.listAuctions().first()
         buyer.placeABid(auction, Money(gbp, BigDecimal("12.13")))
