@@ -26,7 +26,7 @@ class AuctionHub(val idGenerator: IdGenerator, val users: Users, val auctions: A
         return auctions.activateAuction(id)
     }
 
-    fun activeAuctions(): List<Auction> = auctions.activeAuctions()
+    fun openAuctions(): List<Auction> = auctions.activeAuctions()
 
     fun closeAuctionFor(auctionId: AuctionId) {
         val auction = auctions.getAuction(auctionId)
