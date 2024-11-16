@@ -89,29 +89,23 @@ class AuctionServerTest {
 
     @Test
     fun `unauthorised buyer cannot bid`() {
-        seller.registerProduct(SellerActor.Product("Antique Vase", Money(gbp, BigDecimal("12.13"))))
-        val product = backOffice.listProducts()
-            .find { it.description == "Antique Vase" } ?: fail("Couldn't find product")
-        val auctionId = backOffice.createAuction(ProductId(product.id))
+        val productId = seller.registerProduct(SellerActor.Product("Antique Vase", Money(gbp, BigDecimal("12.13"))))
+        val auctionId = backOffice.createAuction(productId)
         backOffice.startAuction(auctionId)
 
-        val auction = buyerOne.authenticated().listAuctions().first()
-        val response = buyerOne.notAuthenticated().placeABid(auction.auctionId, Money(gbp, BigDecimal("12.13")))
+        val response = buyerOne.notAuthenticated().placeABid(auctionId, Money(gbp, BigDecimal("12.13")))
 
         assertThat(response.status, equalTo(expected = UNAUTHORIZED))
     }
 
     @Test
     fun `bid gets ignored if below minimum seller price`() {
-        seller.registerProduct(SellerActor.Product("Antique Vase", Money(gbp, BigDecimal("10.00"))))
-        val product = backOffice.listProducts()
-            .find { it.description == "Antique Vase" } ?: fail("Couldn't find product")
-        val auctionId = backOffice.createAuction(ProductId(product.id))
+        val productId = seller.registerProduct(SellerActor.Product("Antique Vase", Money(gbp, BigDecimal("10.00"))))
+        val auctionId = backOffice.createAuction(productId)
         backOffice.startAuction(auctionId)
 
         val authenticatedBuyer = buyerOne.authenticated()
-        val auction = authenticatedBuyer.listAuctions().first()
-        val response = authenticatedBuyer.placeABid(auction.auctionId, Money(gbp, BigDecimal("9.00")))
+        val response = authenticatedBuyer.placeABid(auctionId, Money(gbp, BigDecimal("9.00")))
 
         assertThat(response.status, equalTo(CONFLICT))
     }
@@ -140,5 +134,4 @@ class AuctionServerTest {
             )
         )
     }
-
 }
