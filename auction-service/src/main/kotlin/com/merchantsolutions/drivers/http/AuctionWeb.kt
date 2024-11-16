@@ -28,11 +28,11 @@ import java.util.*
 
 fun auctionApp(auctionHub: AuctionHub): RoutingHttpHandler {
     return routes(
-        "/register-product" bind POST to { request ->
+        "/register-product" bind POST to BearerAuth({ auctionHub.isValid(it) }).then({ request ->
             val productToRegister = request.json<ProductToRegister>()
             auctionHub.add(productToRegister)
             Response(OK)
-        },
+        }),
         "/create-auction" bind POST to { request ->
             val productId = request.json<UUID>()
             val auctionId = auctionHub.createAuction(productId)

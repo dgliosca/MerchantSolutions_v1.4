@@ -73,11 +73,13 @@ class AuctionHub(val idGenerator: IdGenerator) {
 
     class Users {
         val userOne = User(UserId(UUID.fromString("00000000-0000-0000-0000-000000000002")))
+        val sellerUser = User(UserId(UUID.fromString("00000000-0000-0000-0000-000000000005")))
         val backOfficeUser = User(UserId(UUID.fromString("00000000-0000-0000-0000-000000000003")))
         private val users = listOf<User>(userOne)
         private val tokenToUsers = mutableMapOf<String, User>(
             "00000000-0000-0000-0000-000000000001" to userOne,
-            "00000000-0000-0000-0000-000000000003" to backOfficeUser
+            "00000000-0000-0000-0000-000000000003" to backOfficeUser,
+            "00000000-0000-0000-0000-000000000005" to sellerUser
         )
 
         fun isValid(token: String) = tokenToUsers[token] != null
