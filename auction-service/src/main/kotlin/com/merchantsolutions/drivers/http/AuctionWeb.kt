@@ -64,12 +64,14 @@ fun auctionApp(auctionHub: AuctionHub): RoutingHttpHandler {
                 is AuctionInProgress -> Response(OK).with(auctionInProgressLens of auctionResultFor)
             }
         }, "/bid" bind POST to earlyReturn@{ request ->
-            val token = request.bearerToken()?: return@earlyReturn Response(FORBIDDEN)
+            val token = request.bearerToken() ?: return@earlyReturn Response(FORBIDDEN)
             val userId = auctionHub.getUserByToken(token) ?: return@earlyReturn Response(FORBIDDEN)
             val bid = request.json<Bid>()
-
-            auctionHub.add(BidWithUser(bid.auctionId, userId, bid.price))
-            Response(OK)
+            val result = auctionHub.add(BidWithUser(bid.auctionId, userId, bid.price))
+            when (result) {
+                true -> Response(OK)
+                false -> Response(CONFLICT)
+            }
         })
     )
 }

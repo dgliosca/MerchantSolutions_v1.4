@@ -19,7 +19,7 @@ class AuctionHub(val idGenerator: IdGenerator) {
     private val auctions = mutableListOf<Auction>()
 
     fun add(product: ProductToRegister) {
-        products.add(Product(UUID.randomUUID(), product.description))
+        products.add(Product(UUID.randomUUID(), product.description, product.minimumSellingPrice))
     }
 
     fun listProducts(): List<Product> = products
@@ -60,13 +60,24 @@ class AuctionHub(val idGenerator: IdGenerator) {
     }
 
     fun createAuction(productId: UUID): AuctionId {
+        val product = products.find { it.id == productId }
+        if (product == null) throw IllegalStateException("Auction cannot be crated because product doesn't exist with id: $productId")
         val auctionId = AuctionId(idGenerator())
-        auctions.add(Auction(auctionId, productId))
+        auctions.add(Auction(auctionId, productId, product.minimumSellingPrice))
         return auctionId
     }
 
-    fun add(bid: BidWithUser) {
-        bids.add(bid)
+    fun add(bid: BidWithUser): Boolean {
+        val auction = auctions.find { it.auctionId == bid.auctionId }
+        if (auction == null) throw IllegalStateException("Auction doesn't exist with id: ${bid.auctionId}")
+
+        return if (bid.price < auction.minimumSellingPrice) {
+            false
+        } else {
+            bids.add(bid)
+            true
+        }
+
     }
 
     data class User(val userId: UserId)

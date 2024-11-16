@@ -12,9 +12,7 @@ import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.hasElement
 import com.natpryce.hamkrest.isEmpty
-import org.http4k.cloudnative.Forbidden
-import org.http4k.cloudnative.Unauthorized
-import org.http4k.core.Status.Companion.FORBIDDEN
+import org.http4k.core.Status.Companion.CONFLICT
 import org.http4k.core.Status.Companion.UNAUTHORIZED
 import org.junit.jupiter.api.fail
 import java.math.BigDecimal
@@ -30,7 +28,7 @@ class AuctionServerTest {
 
     @Test
     fun `seller can register a new product`() {
-        seller.registerProduct(SellerActor.Product("candle-sticks"))
+        seller.registerProduct(SellerActor.Product("candle-sticks", Money(gbp, BigDecimal("12.13"))))
     }
 
     @Test
@@ -40,7 +38,7 @@ class AuctionServerTest {
 
     @Test
     fun `backoffice list products to start selling`() {
-        seller.registerProduct(SellerActor.Product("Candle Sticks"))
+        seller.registerProduct(SellerActor.Product("Candle Sticks", Money(gbp, BigDecimal("12.13"))))
         val products = backOffice.listProducts()
 
         assertThat(products.map { it.description }, hasElement("Candle Sticks"))
@@ -48,7 +46,7 @@ class AuctionServerTest {
 
     @Test
     fun `there is one auction to bid`() {
-        seller.registerProduct(SellerActor.Product("Antique Vase"))
+        seller.registerProduct(SellerActor.Product("Antique Vase", Money(gbp, BigDecimal("12.13"))))
         val product = backOffice.listProducts()
             .find { it.description == "Antique Vase" } ?: fail("Couldn't find product")
         val auctionId = backOffice.createAuction(ProductId(product.id))
@@ -60,7 +58,7 @@ class AuctionServerTest {
 
     @Test
     fun `buyer can bid until auction closes`() {
-        seller.registerProduct(SellerActor.Product("Antique Vase"))
+        seller.registerProduct(SellerActor.Product("Antique Vase", Money(gbp, BigDecimal("12.13"))))
         val product = backOffice.listProducts()
             .find { it.description == "Antique Vase" } ?: fail("Couldn't find product")
         val auctionId = backOffice.createAuction(ProductId(product.id))
@@ -73,7 +71,7 @@ class AuctionServerTest {
 
     @Test
     fun `buyer place a bid and win`() {
-        seller.registerProduct(SellerActor.Product("Antique Vase"))
+        seller.registerProduct(SellerActor.Product("Antique Vase", Money(gbp, BigDecimal("12.13"))))
         val product = backOffice.listProducts()
             .find { it.description == "Antique Vase" } ?: fail("Couldn't find product")
         val auctionId = backOffice.createAuction(ProductId(product.id))
@@ -96,7 +94,7 @@ class AuctionServerTest {
 
     @Test
     fun `unauthorised buyer cannot bid`() {
-        seller.registerProduct(SellerActor.Product("Antique Vase"))
+        seller.registerProduct(SellerActor.Product("Antique Vase", Money(gbp, BigDecimal("12.13"))))
         val product = backOffice.listProducts()
             .find { it.description == "Antique Vase" } ?: fail("Couldn't find product")
         val auctionId = backOffice.createAuction(ProductId(product.id))
@@ -106,5 +104,20 @@ class AuctionServerTest {
         val response = buyer.notAuthenticated().placeABid(auction, Money(gbp, BigDecimal("12.13")))
 
         assertThat(response.status, equalTo(expected = UNAUTHORIZED))
+    }
+
+    @Test
+    fun `bid gets ignored if below minimum seller price`() {
+        seller.registerProduct(SellerActor.Product("Antique Vase", Money(gbp, BigDecimal("10.00"))))
+        val product = backOffice.listProducts()
+            .find { it.description == "Antique Vase" } ?: fail("Couldn't find product")
+        val auctionId = backOffice.createAuction(ProductId(product.id))
+        backOffice.startAuction(auctionId)
+
+        val authenticatedBuyer = buyer.authenticated()
+        val auction = authenticatedBuyer.listAuctions().first()
+        val response = authenticatedBuyer.placeABid(auction, Money(gbp, BigDecimal("9.00")))
+
+        assertThat(response.status, equalTo(CONFLICT))
     }
 }

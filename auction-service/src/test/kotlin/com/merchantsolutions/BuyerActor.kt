@@ -39,7 +39,7 @@ class BuyerActor(val httpHandler: HttpHandler) {
 
 data class AuctionResult(val userId: UserId, val winningBid: Money)
 
-data class Auction(val auctionId: AuctionId, val productId: UUID, val state: State)
+data class Auction(val auctionId: AuctionId, val productId: UUID, val minimumSellingPrice: Money, val state: State)
 data class Bid(val auctionId: AuctionId, val price: Money)
 enum class State {
     opened, closed

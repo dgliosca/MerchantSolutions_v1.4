@@ -3,6 +3,7 @@ package com.merchantsolutions
 import com.merchantsolutions.AuctionJson.auto
 import com.merchantsolutions.AuctionJson.json
 import com.merchantsolutions.domain.AuctionId
+import com.merchantsolutions.domain.Money
 import com.merchantsolutions.domain.ProductId
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
@@ -42,4 +43,4 @@ class BackOfficeActor(http: HttpHandler) {
     }
 }
 
-data class BackOfficeProduct(val id: UUID, val description: String)
+data class BackOfficeProduct(val id: UUID, val description: String, val minimumSellingPrice: Money)
