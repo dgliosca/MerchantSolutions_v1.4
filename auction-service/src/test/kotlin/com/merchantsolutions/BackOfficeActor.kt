@@ -20,8 +20,7 @@ import org.http4k.filter.ClientFilters.BearerAuth.invoke
 import java.util.*
 
 private val backOfficeProducts = Body.auto<List<BackOfficeProduct>>().toLens()
-private val productIdLens = Body.auto<UUID>().toLens()
-private val productIdLens2 = Body.auto<ProductId>().toLens()
+private val productIdLens = Body.auto<ProductId>().toLens()
 private val auctionIdLens = Body.auto<AuctionId>().toLens()
 
 class BackOfficeActor(http: HttpHandler) {
@@ -35,11 +34,11 @@ class BackOfficeActor(http: HttpHandler) {
 
     fun listProducts(): List<BackOfficeProduct> = backOfficeProducts(authenticatedHttp(Request(GET, "/products")))
     fun closeAuction(productId: ProductId) {
-        authenticatedHttp(Request(POST, "/close-auction").with(productIdLens2 of productId))
+        authenticatedHttp(Request(POST, "/close-auction").with(productIdLens of productId))
     }
 
     fun createAuction(productId: ProductId) : AuctionId {
-        val response = authenticatedHttp(Request(POST, "/create-auction").with(productIdLens2 of productId))
+        val response = authenticatedHttp(Request(POST, "/create-auction").with(productIdLens of productId))
         return response.json<AuctionId>()
     }
 }
