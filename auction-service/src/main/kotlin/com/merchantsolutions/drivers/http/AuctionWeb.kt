@@ -17,6 +17,9 @@ import org.http4k.core.Method.POST
 import org.http4k.core.Status.Companion.CONFLICT
 import org.http4k.core.Status.Companion.FORBIDDEN
 import org.http4k.core.Status.Companion.OK
+import org.http4k.core.then
+import org.http4k.core.with
+import org.http4k.filter.ServerFilters.BearerAuth
 import org.http4k.lens.bearerToken
 import org.http4k.routing.RoutingHttpHandler
 import org.http4k.routing.bind
@@ -24,14 +27,13 @@ import org.http4k.routing.routes
 import java.util.*
 
 fun auctionApp(auctionHub: AuctionHub): RoutingHttpHandler {
-
     return routes(
         "/register-product" bind POST to { request ->
             val productToRegister = request.json<ProductToRegister>()
             auctionHub.add(productToRegister)
             Response(OK)
         },
-        "/create-auction" bind POST to { request->
+        "/create-auction" bind POST to { request ->
             val productId = request.json<UUID>()
             val auctionId = auctionHub.createAuction(productId)
             Response(OK).with(auctionIdLens of auctionId)
@@ -60,15 +62,15 @@ fun auctionApp(auctionHub: AuctionHub): RoutingHttpHandler {
                 is AuctionClosed -> Response(OK).with(auctionClosedLens of auctionResultFor)
                 is AuctionInProgress -> Response(OK).with(auctionInProgressLens of auctionResultFor)
             }
-        },
-        "/bid" bind POST to earlyReturn@{ request ->
+        }, BearerAuth({ auctionHub.isValid(it) }).then("/bid" bind POST to earlyReturn@{ request ->
             val token = request.bearerToken()
-            val userId = auctionHub.validateToken(token)?: return@earlyReturn Response(FORBIDDEN)
+            val userId = auctionHub.validateToken(token) ?: return@earlyReturn Response(FORBIDDEN)
             val bid = request.json<Bid>()
 
             auctionHub.add(BidWithUser(bid.auctionId, userId, bid.price))
             Response(OK)
-        },
+        })
+
     )
 }
 

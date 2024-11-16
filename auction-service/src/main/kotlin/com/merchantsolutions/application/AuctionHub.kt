@@ -13,6 +13,7 @@ import com.merchantsolutions.domain.UserId
 import java.util.*
 
 class AuctionHub(val idGenerator: IdGenerator) {
+    private val users = Users()
     private val bids = mutableListOf<BidWithUser>()
     private val products = mutableListOf<Product>()
     private val auctions = mutableListOf<Auction>()
@@ -68,7 +69,30 @@ class AuctionHub(val idGenerator: IdGenerator) {
         bids.add(bid)
     }
 
-    fun validateToken(string: String?): UserId? {
-        return UserId(idGenerator())
+    data class User(val userId: UserId)
+
+    class Users {
+        val userOne = User(UserId(UUID.fromString("00000000-0000-0000-0000-000000000002")))
+        val backOfficeUser = User(UserId(UUID.fromString("00000000-0000-0000-0000-000000000003")))
+        private val users = listOf<User>(userOne)
+        private val tokenToUsers = mutableMapOf<String, User>(
+            "00000000-0000-0000-0000-000000000001" to userOne,
+            "00000000-0000-0000-0000-000000000003" to backOfficeUser
+        )
+
+        fun isValid(token: String) = tokenToUsers[token] != null
+        fun getUserByToken(token: String): User? {
+            return tokenToUsers[token]
+        }
     }
+
+    fun validateToken(token: String?): UserId? {
+        if (token == null) return null
+        return if (users.isValid(token)) {
+            users.getUserByToken(token)?.userId
+        } else
+            null
+    }
+
+    fun isValid(token: String?): Boolean = token?.let { users.isValid(token) } == true
 }

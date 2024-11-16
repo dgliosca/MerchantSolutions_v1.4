@@ -12,27 +12,32 @@ import org.http4k.core.Method.GET
 import org.http4k.core.Method.POST
 import org.http4k.core.Request
 import org.http4k.core.Status.Companion.OK
+import org.http4k.core.then
 import org.http4k.core.with
+import org.http4k.filter.ClientFilters.BearerAuth
+import org.http4k.filter.ClientFilters.BearerAuth.invoke
 import java.util.*
 
 private val backOfficeProducts = Body.auto<List<BackOfficeProduct>>().toLens()
 private val productIdLens = Body.auto<UUID>().toLens()
 private val auctionIdLens = Body.auto<AuctionId>().toLens()
 
-class BackOfficeActor(private val client: HttpHandler) {
+class BackOfficeActor(http: HttpHandler) {
+    val authenticatedHttp = BearerAuth("00000000-0000-0000-0000-000000000003")
+        .then(http)
 
     fun startAuction(id: AuctionId) {
-        val result = client(Request(POST, "/start-auction").with(auctionIdLens of id))
+        val result = authenticatedHttp(Request(POST, "/start-auction").with(auctionIdLens of id))
         assertThat(result.status, equalTo(OK))
     }
 
-    fun listProducts(): List<BackOfficeProduct> = backOfficeProducts(client(Request(GET, "/products")))
+    fun listProducts(): List<BackOfficeProduct> = backOfficeProducts(authenticatedHttp(Request(GET, "/products")))
     fun closeAuction(id: UUID) {
-        client(Request(POST, "/close-auction").with(productIdLens of id))
+        authenticatedHttp(Request(POST, "/close-auction").with(productIdLens of id))
     }
 
     fun createAuction(product: ProductId) : AuctionId {
-        val response = client(Request(POST, "/create-auction").with(productIdLens of product.value))
+        val response = authenticatedHttp(Request(POST, "/create-auction").with(productIdLens of product.value))
         return response.json<AuctionId>()
     }
 }

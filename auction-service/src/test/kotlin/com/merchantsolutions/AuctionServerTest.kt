@@ -12,6 +12,10 @@ import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.hasElement
 import com.natpryce.hamkrest.isEmpty
+import org.http4k.cloudnative.Forbidden
+import org.http4k.cloudnative.Unauthorized
+import org.http4k.core.Status.Companion.FORBIDDEN
+import org.http4k.core.Status.Companion.UNAUTHORIZED
 import org.junit.jupiter.api.fail
 import java.math.BigDecimal
 import java.util.UUID
@@ -75,6 +79,7 @@ class AuctionServerTest {
         val auctionId = backOffice.createAuction(ProductId(product.id))
         backOffice.startAuction(auctionId)
 
+        val buyer = buyer.authenticated()
         val auction = buyer.listAuctions().first()
         buyer.placeABid(auction, Money(gbp, BigDecimal("12.13")))
         backOffice.closeAuction(product.id)
@@ -82,10 +87,24 @@ class AuctionServerTest {
         assertThat(
             buyer.auctionResult(auction), equalTo(
                 AuctionResult(
-                    UserId(UUID.fromString("00000000-0000-0000-0000-000000000001")),
+                    UserId(UUID.fromString("00000000-0000-0000-0000-000000000002")),
                     Money(gbp, BigDecimal("12.13"))
                 )
             )
         )
+    }
+
+    @Test
+    fun `unauthorised buyer cannot bid`() {
+        seller.registerProduct(SellerActor.Product("Antique Vase"))
+        val product = backOffice.listProducts()
+            .find { it.description == "Antique Vase" } ?: fail("Couldn't find product")
+        val auctionId = backOffice.createAuction(ProductId(product.id))
+        backOffice.startAuction(auctionId)
+
+        val auction = buyer.listAuctions().first()
+        val response = buyer.notAuthenticated().placeABid(auction, Money(gbp, BigDecimal("12.13")))
+
+        assertThat(response.status, equalTo(expected = UNAUTHORIZED))
     }
 }
