@@ -21,7 +21,7 @@ class BuyerActor(val httpHandler: HttpHandler, val authToken: String = "00000000
             .then(httpHandler)
     )
 
-    fun listAuctions() = activeAuctions(httpHandler(Request(GET, "/active-auctions")))
+    fun listAuctions() = openedAuctionsList(httpHandler(Request(GET, "/active-auctions")))
 
     fun placeABid(id: AuctionId, price: Money): Response =
         httpHandler(Request(method = POST, "/bid").with(bidLens of Bid(id, price)))
@@ -29,7 +29,7 @@ class BuyerActor(val httpHandler: HttpHandler, val authToken: String = "00000000
     fun auctionResult(auctionId: AuctionId): Response =
         httpHandler(Request(GET, "/auction-result").with(auctionIdLens of auctionId))
 
-    private val activeAuctions = Body.auto<List<Auction>>().toLens()
+    private val openedAuctionsList = Body.auto<List<Auction>>().toLens()
     private val bidLens = Body.auto<Bid>().toLens()
     private val auctionIdLens = Body.auto<AuctionId>().toLens()
 }
