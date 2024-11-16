@@ -46,10 +46,10 @@ fun auctionApp(auctionHub: AuctionHub): RoutingHttpHandler {
             else
                 Response(CONFLICT)
         }),
-        "/products" bind GET to {
+        "/products" bind GET to BearerAuth({ auctionHub.isValid(it) }).then({
             val listProducts = auctionHub.listProducts()
             Response(OK).with(listProductsLens of listProducts)
-        },
+        }),
         "/close-auction" bind POST to { request ->
             val id = uuid(request)
             auctionHub.closeAuctionFor(id)
