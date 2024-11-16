@@ -32,6 +32,7 @@ class AuctionServerTest {
 
     private val sellerAuthenticated = SellerActor(auctionServer)
     private val backOffice = BackOfficeActor(auctionServer)
+    val userIdOne = UserId.of("00000000-0000-0000-0000-000000000001")
 
     @Test
     fun `seller can register a new product`() {
@@ -87,7 +88,7 @@ class AuctionServerTest {
         assertThat(
             buyerOneAuthenticated.auctionResult(auctionId), equalTo(
                 AuctionResult(
-                    UserId(UUID.fromString("00000000-0000-0000-0000-000000000001")),
+                    userIdOne,
                     Money(gbp, BigDecimal("12.13"))
                 )
             )
@@ -130,7 +131,7 @@ class AuctionServerTest {
         assertThat(
             buyerOneAuthenticated.auctionResult(auctionId), equalTo(
                 AuctionResult(
-                    UserId.of("00000000-0000-0000-0000-000000000001"),
+                    userIdOne,
                     Money(gbp, BigDecimal("11.00"))
                 )
             )
