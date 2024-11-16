@@ -9,11 +9,11 @@ import com.merchantsolutions.domain.BidWithUser
 import com.merchantsolutions.domain.IdGenerator
 import com.merchantsolutions.domain.Product
 import com.merchantsolutions.domain.ProductToRegister
-import com.merchantsolutions.domain.UserId
+import com.merchantsolutions.adapters.InMemoryUsers
 import java.util.*
 
 class AuctionHub(val idGenerator: IdGenerator) {
-    private val users = Users()
+    private val users = InMemoryUsers()
     private val bids = mutableListOf<BidWithUser>()
     private val products = mutableListOf<Product>()
     private val auctions = mutableListOf<Auction>()
@@ -78,25 +78,6 @@ class AuctionHub(val idGenerator: IdGenerator) {
             true
         }
 
-    }
-
-    data class User(val userId: UserId)
-
-    class Users {
-        val userOne = User(UserId(UUID.fromString("00000000-0000-0000-0000-000000000002")))
-        val sellerUser = User(UserId(UUID.fromString("00000000-0000-0000-0000-000000000005")))
-        val backOfficeUser = User(UserId(UUID.fromString("00000000-0000-0000-0000-000000000003")))
-        private val users = listOf<User>(userOne)
-        private val tokenToUsers = mutableMapOf<String, User>(
-            "00000000-0000-0000-0000-000000000001" to userOne,
-            "00000000-0000-0000-0000-000000000003" to backOfficeUser,
-            "00000000-0000-0000-0000-000000000005" to sellerUser
-        )
-
-        fun isValid(token: String) = tokenToUsers[token] != null
-        fun getUserByToken(token: String): User? {
-            return tokenToUsers[token]
-        }
     }
 
     fun getUserByToken(token: String) = if (users.isValid(token)) {
