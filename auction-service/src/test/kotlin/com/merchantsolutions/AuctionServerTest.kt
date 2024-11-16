@@ -70,7 +70,7 @@ class AuctionServerTest {
         backOffice.startAuction(auctionId)
 
         val response = buyerOneAuthenticated.placeABid(auctionId, Money(gbp, BigDecimal("12.13")))
-        backOffice.closeAuction(productId)
+        backOffice.closeAuction(auctionId)
         assertThat(response.status, equalTo(OK))
     }
 
@@ -81,7 +81,7 @@ class AuctionServerTest {
         backOffice.startAuction(auctionId)
 
         buyerOneAuthenticated.placeABid(auctionId, Money(gbp, BigDecimal("12.13")))
-        backOffice.closeAuction(productId)
+        backOffice.closeAuction(auctionId)
 
         assertThat(
             buyerOneAuthenticated.auctionResult(auctionId), equalTo(
@@ -124,7 +124,7 @@ class AuctionServerTest {
         buyerOneAuthenticated.placeABid(auctionId, Money(gbp, BigDecimal("11.00")))
         buyerTwoAuthenticated.placeABid(auctionId, Money(gbp, BigDecimal("11.00")))
 
-        backOffice.closeAuction(productId)
+        backOffice.closeAuction(auctionId)
 
         assertThat(
             buyerOneAuthenticated.auctionResult(auctionId), equalTo(

@@ -54,8 +54,8 @@ fun auctionApp(auctionHub: AuctionHub): RoutingHttpHandler {
                 Response(OK).with(listProductsLens of listProducts)
             },
             "/close-auction" bind POST to { request ->
-                val productId = request.json<ProductId>()
-                auctionHub.closeAuctionFor(productId)
+                val auctionId = request.json<AuctionId>()
+                auctionHub.closeAuctionFor(auctionId)
                 Response(OK)
             },
             "/auction-result" bind GET to { request ->

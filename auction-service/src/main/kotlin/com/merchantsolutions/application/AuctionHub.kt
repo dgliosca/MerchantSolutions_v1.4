@@ -12,7 +12,6 @@ import com.merchantsolutions.domain.ProductToRegister
 import com.merchantsolutions.adapters.InMemoryUsers
 import com.merchantsolutions.domain.ProductId
 import com.merchantsolutions.domain.ProductId.Companion.of
-import java.util.*
 
 class AuctionHub(val idGenerator: IdGenerator) {
     private val users = InMemoryUsers()
@@ -41,10 +40,9 @@ class AuctionHub(val idGenerator: IdGenerator) {
 
     fun activeAuctions(): List<Auction> = auctions.filter { it.state == opened }
 
-    fun closeAuctionFor(productId: ProductId) {
-        val auction = auctions.find { it.productId == productId.value }
-            ?: throw IllegalStateException("There is no auction for: $productId")
-        auction.copy(state = closed)
+    fun closeAuctionFor(auctionId: AuctionId) {
+        val auction = auctions.find { it.auctionId == auctionId }
+            ?: throw IllegalStateException("There is no auction for: $auctionId")
         auctions.remove(auction)
         auctions.add(auction.copy(state = closed))
     }
