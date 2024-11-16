@@ -55,14 +55,14 @@ fun auctionApp(auctionHub: AuctionHub): RoutingHttpHandler {
             auctionHub.closeAuctionFor(id)
             Response(OK)
         }),
-        "/auction-result" bind GET to { request ->
+        "/auction-result" bind GET to BearerAuth({ auctionHub.isValid(it) }).then({ request ->
             val productId = uuid(request)
             val auctionResultFor = auctionHub.auctionResultFor(productId)
             when (auctionResultFor) {
                 is AuctionClosed -> Response(OK).with(auctionClosedLens of auctionResultFor)
                 is AuctionInProgress -> Response(OK).with(auctionInProgressLens of auctionResultFor)
             }
-        }, BearerAuth({ auctionHub.isValid(it) }).then("/bid" bind POST to earlyReturn@{ request ->
+        }), BearerAuth({ auctionHub.isValid(it) }).then("/bid" bind POST to earlyReturn@{ request ->
             val token = request.bearerToken()
             val userId = auctionHub.validateToken(token) ?: return@earlyReturn Response(FORBIDDEN)
             val bid = request.json<Bid>()
