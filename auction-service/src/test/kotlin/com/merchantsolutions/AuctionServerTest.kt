@@ -21,9 +21,9 @@ import kotlin.lazy
 
 class AuctionServerTest {
 
-    private val buyerOne: BuyerActor by lazy { BuyerActor(auctionServer) }
-    private val buyerTwo: BuyerActor by lazy { BuyerActor(auctionServer, "00000000-0000-0000-0000-000000000002") }
-    private val auctionServer: HttpHandler by lazy { auctionApp(AuctionHub(testing)) }
+    private val auctionServer: HttpHandler = auctionApp(AuctionHub(testing))
+    private val buyerOne: BuyerActor = BuyerActor(auctionServer)
+    private val buyerTwo: BuyerActor = BuyerActor(auctionServer, "00000000-0000-0000-0000-000000000002")
     private val seller = SellerActor(auctionServer)
     private val backOffice = BackOfficeActor(auctionServer)
 
@@ -61,8 +61,7 @@ class AuctionServerTest {
         val auctionId = backOffice.createAuction(productId)
         backOffice.startAuction(auctionId)
 
-        val auction = buyerOne.authenticated().listAuctions().first()
-        buyerOne.placeABid(auction.auctionId, Money(gbp, BigDecimal("12.13")))
+        buyerOne.placeABid(auctionId, Money(gbp, BigDecimal("12.13")))
         backOffice.closeAuction(productId)
     }
 
@@ -73,12 +72,11 @@ class AuctionServerTest {
         backOffice.startAuction(auctionId)
 
         val buyer = buyerOne.authenticated()
-        val auction = buyer.listAuctions().first()
-        buyer.placeABid(auction.auctionId, Money(gbp, BigDecimal("12.13")))
+        buyer.placeABid(auctionId, Money(gbp, BigDecimal("12.13")))
         backOffice.closeAuction(productId)
 
         assertThat(
-            buyer.auctionResult(auction.auctionId), equalTo(
+            buyer.auctionResult(auctionId), equalTo(
                 AuctionResult(
                     UserId(UUID.fromString("00000000-0000-0000-0000-000000000001")),
                     Money(gbp, BigDecimal("12.13"))
@@ -118,7 +116,6 @@ class AuctionServerTest {
 
         val authenticatedBuyerOne = buyerOne.authenticated()
         val authenticatedBuyerTwo = buyerTwo.authenticated()
-        val auction = authenticatedBuyerOne.listAuctions().first()
 
         authenticatedBuyerOne.placeABid(auctionId, Money(gbp, BigDecimal("11.00")))
         authenticatedBuyerTwo.placeABid(auctionId, Money(gbp, BigDecimal("11.00")))
@@ -126,7 +123,7 @@ class AuctionServerTest {
         backOffice.closeAuction(productId)
 
         assertThat(
-            authenticatedBuyerOne.auctionResult(auction.auctionId), equalTo(
+            authenticatedBuyerOne.auctionResult(auctionId), equalTo(
                 AuctionResult(
                     UserId(UUID.fromString("00000000-0000-0000-0000-000000000001")),
                     Money(gbp, BigDecimal("11.00"))
