@@ -9,7 +9,7 @@ class InMemoryUsers : Users {
     val buyer = User(UserId(UUID.fromString("00000000-0000-0000-0000-000000000002")))
     val seller = User(UserId(UUID.fromString("00000000-0000-0000-0000-000000000005")))
     val backOffice = User(UserId(UUID.fromString("00000000-0000-0000-0000-000000000003")))
-    private val users = listOf<User>(buyer)
+    private val users = listOf<User>(buyer, seller, backOffice)
     private val tokenToUsers = mutableMapOf<String, User>(
         "00000000-0000-0000-0000-000000000001" to buyer,
         "00000000-0000-0000-0000-000000000003" to backOffice,
