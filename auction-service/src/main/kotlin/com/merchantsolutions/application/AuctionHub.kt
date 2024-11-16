@@ -15,15 +15,14 @@ import com.merchantsolutions.ports.Products
 import com.merchantsolutions.ports.Users
 
 class AuctionHub(val idGenerator: IdGenerator, val users: Users, val auctions: Auctions, val products: Products) {
-    private val bids = mutableListOf<BidWithUser>()
 
     fun add(product: ProductToRegister): ProductId {
         return products.add(product)
     }
 
     fun listProducts(): List<Product> = products.getProducts()
-    fun activateAuctionFor(id: AuctionId): Boolean {
 
+    fun activateAuctionFor(id: AuctionId): Boolean {
         val auction = auctions.getAuction(id)
         return if (auction == null) {
             false
@@ -52,7 +51,7 @@ class AuctionHub(val idGenerator: IdGenerator, val users: Users, val auctions: A
             }
 
             closed -> {
-                val winningBid = bids.maxBy { it.price }
+                val winningBid = auctions.winningBid(auctionId)
                 AuctionResult.AuctionClosed(winningBid.userId, winningBid.price)
             }
         }
@@ -73,7 +72,7 @@ class AuctionHub(val idGenerator: IdGenerator, val users: Users, val auctions: A
         return if (bid.price < auction.minimumSellingPrice) {
             false
         } else {
-            bids.add(bid)
+            auctions.add(bid)
             true
         }
 

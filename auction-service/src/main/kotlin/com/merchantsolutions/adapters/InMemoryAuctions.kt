@@ -3,10 +3,12 @@ package com.merchantsolutions.adapters
 import com.merchantsolutions.domain.Auction
 import com.merchantsolutions.domain.AuctionId
 import com.merchantsolutions.domain.AuctionState.opened
+import com.merchantsolutions.domain.BidWithUser
 import com.merchantsolutions.ports.Auctions
 
 class InMemoryAuctions : Auctions {
     private val auctions = mutableListOf<Auction>()
+    private val bids = mutableListOf<BidWithUser>()
 
     override fun getAuction(auctionId: AuctionId): Auction? {
         return auctions.find { it.auctionId == auctionId }
@@ -22,5 +24,14 @@ class InMemoryAuctions : Auctions {
 
     override fun activeAuctions(): List<Auction> {
         return auctions.filter { it.state == opened }
+    }
+
+    override fun add(bid: BidWithUser) {
+        if (getAuction(bid.auctionId) != null)
+            bids.add(bid)
+    }
+
+    override fun winningBid(id: AuctionId): BidWithUser {
+        return bids.filter { it.auctionId == id }.maxBy { it.price }
     }
 }
