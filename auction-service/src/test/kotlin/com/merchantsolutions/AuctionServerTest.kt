@@ -35,7 +35,7 @@ class AuctionServerTest {
 
     @Test
     fun `there are no auction to bid`() {
-        assertThat(buyer.listAuctions(), equalTo(emptyList()))
+        assertThat(buyer.authenticated().listAuctions(), equalTo(emptyList()))
     }
 
     @Test
@@ -54,7 +54,7 @@ class AuctionServerTest {
         val auctionId = backOffice.createAuction(ProductId(product.id))
         backOffice.startAuction(auctionId)
 
-        val auctionList = buyer.listAuctions()
+        val auctionList = buyer.authenticated().listAuctions()
         assertThat(auctionList, !isEmpty)
     }
 
@@ -66,7 +66,7 @@ class AuctionServerTest {
         val auctionId = backOffice.createAuction(ProductId(product.id))
         backOffice.startAuction(auctionId)
 
-        val auction = buyer.listAuctions().first()
+        val auction = buyer.authenticated().listAuctions().first()
         buyer.placeABid(auction, Money(gbp, BigDecimal("12.13")))
         backOffice.closeAuction(product.id)
     }
@@ -102,7 +102,7 @@ class AuctionServerTest {
         val auctionId = backOffice.createAuction(ProductId(product.id))
         backOffice.startAuction(auctionId)
 
-        val auction = buyer.listAuctions().first()
+        val auction = buyer.authenticated().listAuctions().first()
         val response = buyer.notAuthenticated().placeABid(auction, Money(gbp, BigDecimal("12.13")))
 
         assertThat(response.status, equalTo(expected = UNAUTHORIZED))
