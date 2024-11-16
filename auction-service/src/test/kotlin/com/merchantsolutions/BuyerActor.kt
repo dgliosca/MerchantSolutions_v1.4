@@ -2,9 +2,7 @@ package com.merchantsolutions
 
 import com.merchantsolutions.AuctionJson.auto
 import com.merchantsolutions.domain.AuctionId
-import com.merchantsolutions.domain.AuctionResult
 import com.merchantsolutions.domain.Money
-import com.merchantsolutions.domain.Product
 import com.merchantsolutions.domain.ProductId
 import com.merchantsolutions.domain.UserId
 import org.http4k.core.Body
@@ -16,7 +14,6 @@ import org.http4k.core.Response
 import org.http4k.core.then
 import org.http4k.core.with
 import org.http4k.filter.ClientFilters.BearerAuth
-import java.util.UUID
 
 class BuyerActor(val httpHandler: HttpHandler, val authToken: String = "00000000-0000-0000-0000-000000000001") {
     fun authenticated() = BuyerActor(
@@ -24,17 +21,13 @@ class BuyerActor(val httpHandler: HttpHandler, val authToken: String = "00000000
             .then(httpHandler)
     )
 
-    fun notAuthenticated() = BuyerActor(httpHandler)
-
     fun listAuctions() = activeAuctions(httpHandler(Request(GET, "/active-auctions")))
-    fun placeABid(id: AuctionId, price: Money): Response {
-        return httpHandler(Request(method = POST, "/bid").with(bidLens of Bid(id, price)))
-    }
 
-    fun auctionResult(auctionId: AuctionId): Response {
-        val response = httpHandler(Request(GET, "/auction-result").with(auctionIdLens of auctionId))
-        return response
-    }
+    fun placeABid(id: AuctionId, price: Money): Response =
+        httpHandler(Request(method = POST, "/bid").with(bidLens of Bid(id, price)))
+
+    fun auctionResult(auctionId: AuctionId): Response =
+        httpHandler(Request(GET, "/auction-result").with(auctionIdLens of auctionId))
 
     private val activeAuctions = Body.auto<List<Auction>>().toLens()
     private val bidLens = Body.auto<Bid>().toLens()
