@@ -22,7 +22,7 @@ class AuctionHub(val users: Users, val auctions: Auctions, val products: Product
     fun listProducts(): List<Product> = products.getProducts()
 
     fun openAuctionFor(id: AuctionId): Boolean {
-        return auctions.activateAuction(id)
+        return auctions.openAuction(id)
     }
 
     fun openedAuctions(): List<Auction> = auctions.activeAuctions()

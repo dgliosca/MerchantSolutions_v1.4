@@ -42,7 +42,7 @@ class InMemoryAuctions(val idGenerator: IdGenerator) : Auctions {
         return bids.filter { it.auctionId == id }.maxBy { it.price }
     }
 
-    override fun activateAuction(id: AuctionId): Boolean {
+    override fun openAuction(id: AuctionId): Boolean {
         val auction = getAuction(id)
         return if (auction == null) {
             false
