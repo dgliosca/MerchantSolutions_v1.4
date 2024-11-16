@@ -27,42 +27,43 @@ import org.http4k.routing.routes
 import java.util.*
 
 fun auctionApp(auctionHub: AuctionHub): RoutingHttpHandler {
-    return routes(
-        "/register-product" bind POST to BearerAuth({ auctionHub.isValid(it) }).then({ request ->
+    val validateToken = BearerAuth({ auctionHub.isValid(it) })
+    return validateToken.then(routes(
+        "/register-product" bind POST to { request ->
             val productToRegister = request.json<ProductToRegister>()
             auctionHub.add(productToRegister)
             Response(OK)
-        }),
-        "/create-auction" bind POST to BearerAuth({ auctionHub.isValid(it) }).then({ request ->
+        },
+        "/create-auction" bind POST to { request ->
             val productId = request.json<UUID>()
             val auctionId = auctionHub.createAuction(productId)
             Response(OK).with(auctionIdLens of auctionId)
-        }),
-        "/active-auctions" bind GET to BearerAuth({ auctionHub.isValid(it) }).then({ Response(OK).with(AuctionResult.lens of auctionHub.activeAuctions()) }),
-        "/start-auction" bind POST to BearerAuth({ auctionHub.isValid(it) }).then({ request ->
+        },
+        "/active-auctions" bind GET to { Response(OK).with(AuctionResult.lens of auctionHub.activeAuctions()) },
+        "/start-auction" bind POST to { request ->
             val auctionId = request.json<AuctionId>()
             if (auctionHub.activateAuctionFor(auctionId))
                 Response(OK)
             else
                 Response(CONFLICT)
-        }),
-        "/products" bind GET to BearerAuth({ auctionHub.isValid(it) }).then({
+        },
+        "/products" bind GET to {
             val listProducts = auctionHub.listProducts()
             Response(OK).with(listProductsLens of listProducts)
-        }),
-        "/close-auction" bind POST to BearerAuth({ auctionHub.isValid(it) }).then({ request ->
+        },
+        "/close-auction" bind POST to { request ->
             val id = uuid(request)
             auctionHub.closeAuctionFor(id)
             Response(OK)
-        }),
-        "/auction-result" bind GET to BearerAuth({ auctionHub.isValid(it) }).then({ request ->
+        },
+        "/auction-result" bind GET to { request ->
             val productId = uuid(request)
             val auctionResultFor = auctionHub.auctionResultFor(productId)
             when (auctionResultFor) {
                 is AuctionClosed -> Response(OK).with(auctionClosedLens of auctionResultFor)
                 is AuctionInProgress -> Response(OK).with(auctionInProgressLens of auctionResultFor)
             }
-        }), BearerAuth({ auctionHub.isValid(it) }).then("/bid" bind POST to earlyReturn@{ request ->
+        }, "/bid" bind POST to earlyReturn@{ request ->
             val token = request.bearerToken()
             val userId = auctionHub.validateToken(token) ?: return@earlyReturn Response(FORBIDDEN)
             val bid = request.json<Bid>()
@@ -70,10 +71,8 @@ fun auctionApp(auctionHub: AuctionHub): RoutingHttpHandler {
             auctionHub.add(BidWithUser(bid.auctionId, userId, bid.price))
             Response(OK)
         })
-
     )
 }
-
 
 val auctionClosedLens = Body.auto<AuctionClosed>().toLens()
 val auctionInProgressLens = Body.auto<AuctionInProgress>().toLens()
