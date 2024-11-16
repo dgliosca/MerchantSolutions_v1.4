@@ -21,7 +21,7 @@ class AuctionHub(val idGenerator: IdGenerator) {
     private val auctions = mutableListOf<Auction>()
 
     fun add(product: ProductToRegister): ProductId {
-        val productId = ProductId.of(idGenerator())
+        val productId = of(idGenerator())
         val product = Product(productId, product.description, product.minimumSellingPrice)
         products.add(product)
         return productId
