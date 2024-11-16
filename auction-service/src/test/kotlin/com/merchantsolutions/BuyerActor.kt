@@ -16,8 +16,8 @@ import org.http4k.filter.ClientFilters.BearerAuth
 import org.openqa.selenium.By.id
 import java.util.UUID
 
-class BuyerActor(val httpHandler: HttpHandler) {
-    fun authenticated() = BuyerActor(BearerAuth("00000000-0000-0000-0000-000000000001")
+class BuyerActor(val httpHandler: HttpHandler, val authToken: String = "00000000-0000-0000-0000-000000000001") {
+    fun authenticated() = BuyerActor(BearerAuth(authToken)
         .then(httpHandler))
     fun notAuthenticated() = BuyerActor(httpHandler)
 

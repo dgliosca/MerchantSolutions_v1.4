@@ -6,12 +6,14 @@ import com.merchantsolutions.ports.Users
 import java.util.UUID
 
 class InMemoryUsers : Users {
-    val buyer = User(UserId(UUID.fromString("00000000-0000-0000-0000-000000000002")))
+    val buyerOne = User(UserId(UUID.fromString("00000000-0000-0000-0000-000000000001")))
+    val buyerTwo = User(UserId(UUID.fromString("00000000-0000-0000-0000-000000000002")))
     val seller = User(UserId(UUID.fromString("00000000-0000-0000-0000-000000000005")))
     val backOffice = User(UserId(UUID.fromString("00000000-0000-0000-0000-000000000003")))
-    private val users = listOf<User>(buyer, seller, backOffice)
+    private val users = listOf<User>(buyerOne, seller, backOffice)
     private val tokenToUsers = mutableMapOf<String, User>(
-        "00000000-0000-0000-0000-000000000001" to buyer,
+        "00000000-0000-0000-0000-000000000001" to buyerOne,
+        "00000000-0000-0000-0000-000000000002" to buyerTwo,
         "00000000-0000-0000-0000-000000000003" to backOffice,
         "00000000-0000-0000-0000-000000000005" to seller
     )
