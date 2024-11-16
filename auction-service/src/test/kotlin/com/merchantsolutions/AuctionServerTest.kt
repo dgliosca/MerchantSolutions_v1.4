@@ -3,6 +3,8 @@ package com.merchantsolutions
 import com.merchantsolutions.application.AuctionHub
 import com.merchantsolutions.domain.Money
 import com.merchantsolutions.domain.Money.Companion.gbp
+import com.merchantsolutions.domain.ProductId
+import com.merchantsolutions.domain.ProductId.Companion.of
 import com.merchantsolutions.domain.UserId
 import com.merchantsolutions.drivers.http.auctionApp
 import org.http4k.core.*
@@ -18,19 +20,22 @@ import java.util.UUID
 
 class AuctionServerTest {
 
-    private val auctionServer: HttpHandler = auctionApp(AuctionHub(testing))
-    private val buyerOne: BuyerActor = BuyerActor(auctionServer)
-    private val buyerOneAuthenticated: BuyerActor = buyerOne.authenticated()
+    private val auctionServer = auctionApp(AuctionHub(testing))
+    private val buyerOne = BuyerActor(auctionServer)
+    private val buyerOneAuthenticated = buyerOne.authenticated()
 
-    private val buyerTwo: BuyerActor = BuyerActor(auctionServer, "00000000-0000-0000-0000-000000000002")
-    private val buyerTwoAuthenticated: BuyerActor = buyerTwo.authenticated()
+    private val buyerTwo = BuyerActor(auctionServer, "00000000-0000-0000-0000-000000000002")
+    private val buyerTwoAuthenticated = buyerTwo.authenticated()
 
     private val sellerAuthenticated = SellerActor(auctionServer)
     private val backOffice = BackOfficeActor(auctionServer)
 
     @Test
     fun `seller can register a new product`() {
-        sellerAuthenticated.registerProduct(SellerActor.Product("candle-sticks", Money(gbp, BigDecimal("12.13"))))
+        val product = SellerActor.Product("Candle Sticks", Money(gbp, BigDecimal("12.13")))
+        val productId = sellerAuthenticated.registerProduct(product)
+
+        assertThat(productId, equalTo(ProductId.of("00000000-0000-0000-0000-000000000000")))
     }
 
     @Test
