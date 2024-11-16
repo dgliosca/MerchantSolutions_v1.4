@@ -28,52 +28,53 @@ import org.http4k.routing.routes
 import java.util.*
 
 fun auctionApp(auctionHub: AuctionHub): RoutingHttpHandler {
-    val validateToken = BearerAuth({ auctionHub.isValid(it) })
-    return validateToken.then(routes(
-        "/register-product" bind POST to { request ->
-            val productToRegister = request.json<ProductToRegister>()
-            val productId = auctionHub.add(productToRegister)
-            Response(OK).with(productIdLens of productId)
-        },
-        "/create-auction" bind POST to { request ->
-            val productId = request.json<ProductId>()
-            val auctionId = auctionHub.createAuction(productId)
-            Response(OK).with(auctionIdLens of auctionId)
-        },
-        "/active-auctions" bind GET to { Response(OK).with(AuctionResult.lens of auctionHub.activeAuctions()) },
-        "/start-auction" bind POST to { request ->
-            val auctionId = request.json<AuctionId>()
-            if (auctionHub.activateAuctionFor(auctionId))
+    val validateTokenFilter = BearerAuth({ auctionHub.isValid(it) })
+    return validateTokenFilter.then(
+        routes(
+            "/register-product" bind POST to { request ->
+                val productToRegister = request.json<ProductToRegister>()
+                val productId = auctionHub.add(productToRegister)
+                Response(OK).with(productIdLens of productId)
+            },
+            "/create-auction" bind POST to { request ->
+                val productId = request.json<ProductId>()
+                val auctionId = auctionHub.createAuction(productId)
+                Response(OK).with(auctionIdLens of auctionId)
+            },
+            "/active-auctions" bind GET to { Response(OK).with(AuctionResult.lens of auctionHub.activeAuctions()) },
+            "/start-auction" bind POST to { request ->
+                val auctionId = request.json<AuctionId>()
+                if (auctionHub.activateAuctionFor(auctionId))
+                    Response(OK)
+                else
+                    Response(CONFLICT)
+            },
+            "/products" bind GET to {
+                val listProducts = auctionHub.listProducts()
+                Response(OK).with(listProductsLens of listProducts)
+            },
+            "/close-auction" bind POST to { request ->
+                val productId = request.json<ProductId>()
+                auctionHub.closeAuctionFor(productId)
                 Response(OK)
-            else
-                Response(CONFLICT)
-        },
-        "/products" bind GET to {
-            val listProducts = auctionHub.listProducts()
-            Response(OK).with(listProductsLens of listProducts)
-        },
-        "/close-auction" bind POST to { request ->
-            val productId = request.json<ProductId>()
-            auctionHub.closeAuctionFor(productId)
-            Response(OK)
-        },
-        "/auction-result" bind GET to { request ->
-            val auctionId = request.json<AuctionId>()
-            val auctionResultFor = auctionHub.auctionResultFor(auctionId)
-            when (auctionResultFor) {
-                is AuctionClosed -> Response(OK).with(auctionClosedLens of auctionResultFor)
-                is AuctionInProgress -> Response(OK).with(auctionInProgressLens of auctionResultFor)
-            }
-        }, "/bid" bind POST to earlyReturn@{ request ->
-            val token = request.bearerToken() ?: return@earlyReturn Response(FORBIDDEN)
-            val userId = auctionHub.getUserByToken(token) ?: return@earlyReturn Response(FORBIDDEN)
-            val bid = request.json<Bid>()
-            val result = auctionHub.add(BidWithUser(bid.auctionId, userId, bid.price))
-            when (result) {
-                true -> Response(OK)
-                false -> Response(CONFLICT)
-            }
-        })
+            },
+            "/auction-result" bind GET to { request ->
+                val auctionId = request.json<AuctionId>()
+                val auctionResultFor = auctionHub.auctionResultFor(auctionId)
+                when (auctionResultFor) {
+                    is AuctionClosed -> Response(OK).with(auctionClosedLens of auctionResultFor)
+                    is AuctionInProgress -> Response(OK).with(auctionInProgressLens of auctionResultFor)
+                }
+            }, "/bid" bind POST to earlyReturn@{ request ->
+                val token = request.bearerToken() ?: return@earlyReturn Response(FORBIDDEN)
+                val userId = auctionHub.getUserByToken(token) ?: return@earlyReturn Response(FORBIDDEN)
+                val bid = request.json<Bid>()
+                val result = auctionHub.add(BidWithUser(bid.auctionId, userId, bid.price))
+                when (result) {
+                    true -> Response(OK)
+                    false -> Response(CONFLICT)
+                }
+            })
     )
 }
 
