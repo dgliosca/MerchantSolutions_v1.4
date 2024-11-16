@@ -134,8 +134,8 @@ class AuctionServerTest {
         val authenticatedBuyerTwo = buyerTwo.authenticated()
         val auction = authenticatedBuyerOne.listAuctions().first()
 
-        authenticatedBuyerOne.placeABid(auction.auctionId, Money(gbp, BigDecimal("11.00")))
-        authenticatedBuyerTwo.placeABid(auction.auctionId, Money(gbp, BigDecimal("11.00")))
+        authenticatedBuyerOne.placeABid(auctionId, Money(gbp, BigDecimal("11.00")))
+        authenticatedBuyerTwo.placeABid(auctionId, Money(gbp, BigDecimal("11.00")))
 
         backOffice.closeAuction(product.id)
 
