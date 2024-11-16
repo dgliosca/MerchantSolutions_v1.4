@@ -10,6 +10,7 @@ import com.merchantsolutions.domain.IdGenerator
 import com.merchantsolutions.domain.Product
 import com.merchantsolutions.domain.ProductToRegister
 import com.merchantsolutions.adapters.InMemoryUsers
+import com.merchantsolutions.domain.ProductId
 import java.util.*
 
 class AuctionHub(val idGenerator: IdGenerator) {
@@ -18,8 +19,10 @@ class AuctionHub(val idGenerator: IdGenerator) {
     private val products = mutableListOf<Product>()
     private val auctions = mutableListOf<Auction>()
 
-    fun add(product: ProductToRegister) {
-        products.add(Product(UUID.randomUUID(), product.description, product.minimumSellingPrice))
+    fun add(product: ProductToRegister): ProductId {
+        val product = Product(idGenerator(), product.description, product.minimumSellingPrice)
+        products.add(product)
+        return ProductId(product.id)
     }
 
     fun listProducts(): List<Product> = products

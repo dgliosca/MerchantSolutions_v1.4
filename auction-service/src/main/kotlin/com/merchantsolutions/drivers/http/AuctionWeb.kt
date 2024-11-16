@@ -10,6 +10,7 @@ import com.merchantsolutions.domain.AuctionResult.AuctionInProgress
 import com.merchantsolutions.domain.BidWithUser
 import com.merchantsolutions.domain.Money
 import com.merchantsolutions.domain.Product
+import com.merchantsolutions.domain.ProductId
 import com.merchantsolutions.domain.ProductToRegister
 import org.http4k.core.*
 import org.http4k.core.Method.GET
@@ -31,8 +32,8 @@ fun auctionApp(auctionHub: AuctionHub): RoutingHttpHandler {
     return validateToken.then(routes(
         "/register-product" bind POST to { request ->
             val productToRegister = request.json<ProductToRegister>()
-            auctionHub.add(productToRegister)
-            Response(OK)
+            val productId = auctionHub.add(productToRegister)
+            Response(OK).with(productIdLens of productId)
         },
         "/create-auction" bind POST to { request ->
             val productId = request.json<UUID>()
@@ -81,6 +82,7 @@ val auctionInProgressLens = Body.auto<AuctionInProgress>().toLens()
 val auctionIdLens = Body.auto<AuctionId>().toLens()
 val listProductsLens = Body.auto<List<Product>>().toLens()
 val uuid = Body.auto<UUID>().toLens()
+val productIdLens = Body.auto<ProductId>().toLens()
 
 private data class Bid(val auctionId: AuctionId, val price: Money)
 private class AuctionResult {
