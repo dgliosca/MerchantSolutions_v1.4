@@ -62,11 +62,11 @@ class AuctionHub(val idGenerator: IdGenerator) {
         }
     }
 
-    fun createAuction(productId: UUID): AuctionId {
-        val product = products.find { it.id == productId }
+    fun createAuction(productId: ProductId): AuctionId {
+        val product = products.find { it.id == productId.value }
         if (product == null) throw IllegalStateException("Auction cannot be crated because product doesn't exist with id: $productId")
         val auctionId = AuctionId(idGenerator())
-        auctions.add(Auction(auctionId, productId, product.minimumSellingPrice))
+        auctions.add(Auction(auctionId, productId.value, product.minimumSellingPrice))
         return auctionId
     }
 

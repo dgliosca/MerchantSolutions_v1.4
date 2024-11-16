@@ -39,7 +39,7 @@ class BackOfficeActor(http: HttpHandler) {
     }
 
     fun createAuction(productId: ProductId) : AuctionId {
-        val response = authenticatedHttp(Request(POST, "/create-auction").with(productIdLens of productId.value))
+        val response = authenticatedHttp(Request(POST, "/create-auction").with(productIdLens2 of productId))
         return response.json<AuctionId>()
     }
 }
