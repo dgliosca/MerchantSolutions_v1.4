@@ -66,7 +66,7 @@ class AuctionServerTest {
         backOffice.startAuction(auctionId)
 
         val auction = buyerOne.authenticated().listAuctions().first()
-        buyerOne.placeABid(auction, Money(gbp, BigDecimal("12.13")))
+        buyerOne.placeABid(auction.auctionId, Money(gbp, BigDecimal("12.13")))
         backOffice.closeAuction(product.id)
     }
 
@@ -80,7 +80,7 @@ class AuctionServerTest {
 
         val buyer = buyerOne.authenticated()
         val auction = buyer.listAuctions().first()
-        buyer.placeABid(auction, Money(gbp, BigDecimal("12.13")))
+        buyer.placeABid(auction.auctionId, Money(gbp, BigDecimal("12.13")))
         backOffice.closeAuction(product.id)
 
         assertThat(
@@ -102,7 +102,7 @@ class AuctionServerTest {
         backOffice.startAuction(auctionId)
 
         val auction = buyerOne.authenticated().listAuctions().first()
-        val response = buyerOne.notAuthenticated().placeABid(auction, Money(gbp, BigDecimal("12.13")))
+        val response = buyerOne.notAuthenticated().placeABid(auction.auctionId, Money(gbp, BigDecimal("12.13")))
 
         assertThat(response.status, equalTo(expected = UNAUTHORIZED))
     }
@@ -117,7 +117,7 @@ class AuctionServerTest {
 
         val authenticatedBuyer = buyerOne.authenticated()
         val auction = authenticatedBuyer.listAuctions().first()
-        val response = authenticatedBuyer.placeABid(auction, Money(gbp, BigDecimal("9.00")))
+        val response = authenticatedBuyer.placeABid(auction.auctionId, Money(gbp, BigDecimal("9.00")))
 
         assertThat(response.status, equalTo(CONFLICT))
     }
@@ -134,8 +134,8 @@ class AuctionServerTest {
         val authenticatedBuyerTwo = buyerTwo.authenticated()
         val auction = authenticatedBuyerOne.listAuctions().first()
 
-        authenticatedBuyerOne.placeABid(auction, Money(gbp, BigDecimal("11.00")))
-        authenticatedBuyerTwo.placeABid(auction, Money(gbp, BigDecimal("11.00")))
+        authenticatedBuyerOne.placeABid(auction.auctionId, Money(gbp, BigDecimal("11.00")))
+        authenticatedBuyerTwo.placeABid(auction.auctionId, Money(gbp, BigDecimal("11.00")))
 
         backOffice.closeAuction(product.id)
 

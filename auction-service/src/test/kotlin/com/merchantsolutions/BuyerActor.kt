@@ -13,7 +13,6 @@ import org.http4k.core.Response
 import org.http4k.core.then
 import org.http4k.core.with
 import org.http4k.filter.ClientFilters.BearerAuth
-import org.openqa.selenium.By.id
 import java.util.UUID
 
 class BuyerActor(val httpHandler: HttpHandler, val authToken: String = "00000000-0000-0000-0000-000000000001") {
@@ -22,8 +21,8 @@ class BuyerActor(val httpHandler: HttpHandler, val authToken: String = "00000000
     fun notAuthenticated() = BuyerActor(httpHandler)
 
     fun listAuctions() = activeAuctions(httpHandler(Request(GET, "/active-auctions")))
-    fun placeABid(auction: Auction, price: Money): Response {
-        return httpHandler(Request(method = POST, "/bid").with(bidLens of Bid(auction.auctionId, price)))
+    fun placeABid(id: AuctionId, price: Money): Response {
+        return httpHandler(Request(method = POST, "/bid").with(bidLens of Bid(id, price)))
     }
 
     fun auctionResult(auction: Auction): AuctionResult {
