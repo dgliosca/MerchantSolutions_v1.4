@@ -35,10 +35,7 @@ class AuctionHub(val idGenerator: IdGenerator, val users: Users, val auctions: A
     fun auctionResultFor(auctionId: AuctionId): AuctionResult {
         val auction = auctions.getAuction(auctionId) ?: return AuctionResult.AuctionNotFound
         return when (auction.state) {
-            opened -> {
-                AuctionResult.AuctionInProgress
-            }
-
+            opened -> AuctionResult.AuctionInProgress
             closed -> {
                 val winningBid = auctions.winningBid(auctionId)
                 AuctionResult.AuctionClosed(winningBid.userId, winningBid.price)
@@ -50,13 +47,12 @@ class AuctionHub(val idGenerator: IdGenerator, val users: Users, val auctions: A
         val product = products.get(productId)
         if (product == null) throw IllegalStateException("Auction cannot be crated because product doesn't exist with id: $productId")
         val auctionId = AuctionId(idGenerator())
-        auctions.add(Auction(auctionId, productId.value, product.minimumSellingPrice))
+        auctions.add(Auction(auctionId, productId, product.minimumSellingPrice))
         return auctionId
     }
 
     fun add(bid: BidWithUser): Boolean {
-        val auction = auctions.getAuction(bid.auctionId)
-        if (auction == null) throw IllegalStateException("Auction doesn't exist with id: ${bid.auctionId}")
+        val auction = auctions.getAuction(bid.auctionId) ?: return false
 
         return if (bid.price < auction.minimumSellingPrice) {
             false
@@ -64,7 +60,6 @@ class AuctionHub(val idGenerator: IdGenerator, val users: Users, val auctions: A
             auctions.add(bid)
             true
         }
-
     }
 
     fun getUserByToken(token: String) = if (users.isValid(token)) {

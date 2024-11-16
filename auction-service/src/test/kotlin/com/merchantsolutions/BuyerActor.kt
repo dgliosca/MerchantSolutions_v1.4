@@ -4,6 +4,8 @@ import com.merchantsolutions.AuctionJson.auto
 import com.merchantsolutions.domain.AuctionId
 import com.merchantsolutions.domain.AuctionResult
 import com.merchantsolutions.domain.Money
+import com.merchantsolutions.domain.Product
+import com.merchantsolutions.domain.ProductId
 import com.merchantsolutions.domain.UserId
 import org.http4k.core.Body
 import org.http4k.core.HttpHandler
@@ -44,7 +46,7 @@ data class AuctionClosed(val userId: UserId, val winningBid: Money)
 object AuctionInProgress
 object AuctionNotFound
 
-data class Auction(val auctionId: AuctionId, val productId: UUID, val minimumSellingPrice: Money, val state: State)
+data class Auction(val auctionId: AuctionId, val productId: ProductId, val minimumSellingPrice: Money, val state: State)
 data class Bid(val auctionId: AuctionId, val price: Money)
 enum class State {
     opened, closed
