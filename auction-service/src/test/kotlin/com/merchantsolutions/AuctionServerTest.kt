@@ -5,6 +5,7 @@ import com.merchantsolutions.adapters.InMemoryAuctions
 import com.merchantsolutions.adapters.InMemoryProducts
 import com.merchantsolutions.adapters.InMemoryUsers
 import com.merchantsolutions.application.AuctionHub
+import com.merchantsolutions.domain.AuctionId
 import com.merchantsolutions.domain.Money
 import com.merchantsolutions.domain.Money.Companion.gbp
 import com.merchantsolutions.domain.ProductId
@@ -19,6 +20,9 @@ import org.http4k.core.Status.Companion.OK
 import org.http4k.core.Status.Companion.UNAUTHORIZED
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
+import java.util.UUID
+import com.merchantsolutions.AuctionJson.json
+import org.http4k.core.Status.Companion.NOT_FOUND
 
 class AuctionServerTest {
 
@@ -84,9 +88,9 @@ class AuctionServerTest {
         buyerOneAuthenticated.placeABid(auctionId, Money(gbp, BigDecimal("12.13")))
         backOffice.closeAuction(auctionId)
 
-        assertThat(
-            buyerOneAuthenticated.auctionResult(auctionId), equalTo(
-                AuctionResult(
+        val response = buyerOneAuthenticated.auctionResult(auctionId)
+        assertThat(response.json<AuctionClosed>(), equalTo(
+                AuctionClosed(
                     userIdOne,
                     Money(gbp, BigDecimal("12.13"))
                 )
@@ -127,13 +131,21 @@ class AuctionServerTest {
 
         backOffice.closeAuction(auctionId)
 
+        val actual = buyerOneAuthenticated.auctionResult(auctionId)
         assertThat(
-            buyerOneAuthenticated.auctionResult(auctionId), equalTo(
-                AuctionResult(
+            actual.json<AuctionClosed>(), equalTo(
+                AuctionClosed(
                     userIdOne,
                     Money(gbp, BigDecimal("11.00"))
                 )
             )
         )
+    }
+
+    @Test
+    fun `auction not found result`() {
+        val auctionId = AuctionId(UUID.fromString("00000000-0001-0001-0001-000000000000"))
+        val actual = buyerOneAuthenticated.auctionResult(auctionId)
+        assertThat(actual.status, equalTo(NOT_FOUND))
     }
 }

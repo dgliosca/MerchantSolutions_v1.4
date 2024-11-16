@@ -7,6 +7,7 @@ import com.merchantsolutions.domain.Auction
 import com.merchantsolutions.domain.AuctionId
 import com.merchantsolutions.domain.AuctionResult.AuctionClosed
 import com.merchantsolutions.domain.AuctionResult.AuctionInProgress
+import com.merchantsolutions.domain.AuctionResult.AuctionNotFound
 import com.merchantsolutions.domain.BidWithUser
 import com.merchantsolutions.domain.Money
 import com.merchantsolutions.domain.Product
@@ -17,6 +18,7 @@ import org.http4k.core.Method.GET
 import org.http4k.core.Method.POST
 import org.http4k.core.Status.Companion.CONFLICT
 import org.http4k.core.Status.Companion.FORBIDDEN
+import org.http4k.core.Status.Companion.NOT_FOUND
 import org.http4k.core.Status.Companion.OK
 import org.http4k.core.then
 import org.http4k.core.with
@@ -60,10 +62,11 @@ fun auctionApp(auctionHub: AuctionHub): RoutingHttpHandler {
             },
             "/auction-result" bind GET to { request ->
                 val auctionId = request.json<AuctionId>()
-                val auctionResultFor = auctionHub.auctionResultFor(auctionId)
+                val auctionResultFor: com.merchantsolutions.domain.AuctionResult = auctionHub.auctionResultFor(auctionId)
                 when (auctionResultFor) {
                     is AuctionClosed -> Response(OK).with(auctionClosedLens of auctionResultFor)
                     is AuctionInProgress -> Response(OK).with(auctionInProgressLens of auctionResultFor)
+                    is AuctionNotFound -> Response(NOT_FOUND)
                 }
             }, "/bid" bind POST to early@{ request ->
                 val token = request.bearerToken() ?: return@early Response(FORBIDDEN)

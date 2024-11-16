@@ -36,8 +36,7 @@ class AuctionHub(val idGenerator: IdGenerator, val users: Users, val auctions: A
     }
 
     fun auctionResultFor(auctionId: AuctionId): AuctionResult {
-        val auction = auctions.getAuction(auctionId)
-            ?: throw IllegalStateException("There is no auction for: $auctionId")
+        val auction = auctions.getAuction(auctionId) ?: return AuctionResult.AuctionNotFound
         return when (auction.state) {
             opened -> {
                 AuctionResult.AuctionInProgress
