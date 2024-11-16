@@ -39,13 +39,13 @@ fun auctionApp(auctionHub: AuctionHub): RoutingHttpHandler {
             Response(OK).with(auctionIdLens of auctionId)
         }),
         "/active-auctions" bind GET to BearerAuth({ auctionHub.isValid(it) }).then({ Response(OK).with(AuctionResult.lens of auctionHub.activeAuctions()) }),
-        "/start-auction" bind POST to { request ->
+        "/start-auction" bind POST to BearerAuth({ auctionHub.isValid(it) }).then({ request ->
             val auctionId = request.json<AuctionId>()
             if (auctionHub.activateAuctionFor(auctionId))
                 Response(OK)
             else
                 Response(CONFLICT)
-        },
+        }),
         "/products" bind GET to {
             val listProducts = auctionHub.listProducts()
             Response(OK).with(listProductsLens of listProducts)
