@@ -5,9 +5,13 @@ import com.merchantsolutions.domain.AuctionId
 import com.merchantsolutions.domain.AuctionState.closed
 import com.merchantsolutions.domain.AuctionState.opened
 import com.merchantsolutions.domain.BidWithUser
+import com.merchantsolutions.domain.IdGenerator
+import com.merchantsolutions.domain.Money
+import com.merchantsolutions.domain.Product
+import com.merchantsolutions.domain.ProductId
 import com.merchantsolutions.ports.Auctions
 
-class InMemoryAuctions : Auctions {
+class InMemoryAuctions(val idGenerator: IdGenerator) : Auctions {
     private val auctions = mutableListOf<Auction>()
     private val bids = mutableListOf<BidWithUser>()
 
@@ -15,8 +19,10 @@ class InMemoryAuctions : Auctions {
         return auctions.find { it.auctionId == auctionId }
     }
 
-    override fun add(auction: Auction) {
-        auctions.add(auction)
+    override fun createAuction(productId: ProductId, minimumSellingPrice: Money) : AuctionId{
+        val auctionId = AuctionId(idGenerator())
+        auctions.add(Auction(auctionId, productId, minimumSellingPrice))
+        return auctionId
     }
 
     override fun remove(auction: Auction) {
@@ -27,7 +33,7 @@ class InMemoryAuctions : Auctions {
         return auctions.filter { it.state == opened }
     }
 
-    override fun add(bid: BidWithUser) {
+    override fun createAuction(bid: BidWithUser) {
         if (getAuction(bid.auctionId) != null)
             bids.add(bid)
     }

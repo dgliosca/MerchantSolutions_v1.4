@@ -6,7 +6,6 @@ import com.merchantsolutions.domain.AuctionResult
 import com.merchantsolutions.domain.AuctionState.closed
 import com.merchantsolutions.domain.AuctionState.opened
 import com.merchantsolutions.domain.BidWithUser
-import com.merchantsolutions.domain.IdGenerator
 import com.merchantsolutions.domain.Product
 import com.merchantsolutions.domain.ProductId
 import com.merchantsolutions.domain.ProductToRegister
@@ -14,7 +13,7 @@ import com.merchantsolutions.ports.Auctions
 import com.merchantsolutions.ports.Products
 import com.merchantsolutions.ports.Users
 
-class AuctionHub(val idGenerator: IdGenerator, val users: Users, val auctions: Auctions, val products: Products) {
+class AuctionHub(val users: Users, val auctions: Auctions, val products: Products) {
 
     fun add(product: ProductToRegister): ProductId {
         return products.add(product)
@@ -46,8 +45,8 @@ class AuctionHub(val idGenerator: IdGenerator, val users: Users, val auctions: A
     fun createAuction(productId: ProductId): AuctionId {
         val product = products.get(productId)
         if (product == null) throw IllegalStateException("Auction cannot be crated because product doesn't exist with id: $productId")
-        val auctionId = AuctionId(idGenerator())
-        auctions.add(Auction(auctionId, productId, product.minimumSellingPrice))
+
+        val auctionId = auctions.createAuction(productId, product.minimumSellingPrice)
         return auctionId
     }
 
@@ -57,7 +56,7 @@ class AuctionHub(val idGenerator: IdGenerator, val users: Users, val auctions: A
         return if (bid.price < auction.minimumSellingPrice) {
             false
         } else {
-            auctions.add(bid)
+            auctions.createAuction(bid)
             true
         }
     }

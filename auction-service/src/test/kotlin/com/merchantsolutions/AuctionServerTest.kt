@@ -26,7 +26,7 @@ import org.http4k.core.Status.Companion.NOT_FOUND
 
 class AuctionServerTest {
 
-    private val auctionServer = auctionApp(AuctionHub(testing, InMemoryUsers(), InMemoryAuctions(), InMemoryProducts(testing)))
+    private val auctionServer = auctionApp(AuctionHub(InMemoryUsers(), InMemoryAuctions(testing), InMemoryProducts(testing)))
     private val buyerOne = BuyerActor(auctionServer)
     private val buyerOneAuthenticated = buyerOne.authenticated()
 
