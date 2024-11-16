@@ -1,5 +1,3 @@
 package com.merchantsolutions.domain
 
-import java.util.UUID
-
-data class Product(val id: UUID, val description: String, val minimumSellingPrice: Money)
+data class Product(val productId: ProductId, val description: String, val minimumSellingPrice: Money)

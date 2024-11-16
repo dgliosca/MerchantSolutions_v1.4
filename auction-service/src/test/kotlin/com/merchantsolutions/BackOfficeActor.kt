@@ -44,4 +44,4 @@ class BackOfficeActor(http: HttpHandler) {
     }
 }
 
-data class BackOfficeProduct(val id: UUID, val description: String, val minimumSellingPrice: Money)
+data class BackOfficeProduct(val productId: ProductId, val description: String, val minimumSellingPrice: Money)

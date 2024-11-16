@@ -11,6 +11,8 @@ import com.merchantsolutions.domain.Product
 import com.merchantsolutions.domain.ProductToRegister
 import com.merchantsolutions.adapters.InMemoryUsers
 import com.merchantsolutions.domain.ProductId
+import com.merchantsolutions.domain.ProductId.Companion.of
+import java.util.*
 
 class AuctionHub(val idGenerator: IdGenerator) {
     private val users = InMemoryUsers()
@@ -19,9 +21,10 @@ class AuctionHub(val idGenerator: IdGenerator) {
     private val auctions = mutableListOf<Auction>()
 
     fun add(product: ProductToRegister): ProductId {
-        val product = Product(idGenerator(), product.description, product.minimumSellingPrice)
+        val productId = ProductId.of(idGenerator())
+        val product = Product(productId, product.description, product.minimumSellingPrice)
         products.add(product)
-        return ProductId(product.id)
+        return productId
     }
 
     fun listProducts(): List<Product> = products
@@ -62,7 +65,7 @@ class AuctionHub(val idGenerator: IdGenerator) {
     }
 
     fun createAuction(productId: ProductId): AuctionId {
-        val product = products.find { it.id == productId.value }
+        val product = products.find { it.productId == productId }
         if (product == null) throw IllegalStateException("Auction cannot be crated because product doesn't exist with id: $productId")
         val auctionId = AuctionId(idGenerator())
         auctions.add(Auction(auctionId, productId.value, product.minimumSellingPrice))
