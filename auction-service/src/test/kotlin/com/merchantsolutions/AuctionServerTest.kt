@@ -78,7 +78,7 @@ class AuctionServerTest {
         backOffice.closeAuction(productId)
 
         assertThat(
-            buyer.auctionResult(auction), equalTo(
+            buyer.auctionResult(auction.auctionId), equalTo(
                 AuctionResult(
                     UserId(UUID.fromString("00000000-0000-0000-0000-000000000001")),
                     Money(gbp, BigDecimal("12.13"))
@@ -126,7 +126,7 @@ class AuctionServerTest {
         backOffice.closeAuction(productId)
 
         assertThat(
-            authenticatedBuyerOne.auctionResult(auction), equalTo(
+            authenticatedBuyerOne.auctionResult(auction.auctionId), equalTo(
                 AuctionResult(
                     UserId(UUID.fromString("00000000-0000-0000-0000-000000000001")),
                     Money(gbp, BigDecimal("11.00"))

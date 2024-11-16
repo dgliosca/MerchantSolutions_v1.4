@@ -58,8 +58,8 @@ fun auctionApp(auctionHub: AuctionHub): RoutingHttpHandler {
             Response(OK)
         },
         "/auction-result" bind GET to { request ->
-            val productId = uuid(request)
-            val auctionResultFor = auctionHub.auctionResultFor(productId)
+            val auctionId = request.json<AuctionId>()
+            val auctionResultFor = auctionHub.auctionResultFor(auctionId)
             when (auctionResultFor) {
                 is AuctionClosed -> Response(OK).with(auctionClosedLens of auctionResultFor)
                 is AuctionInProgress -> Response(OK).with(auctionInProgressLens of auctionResultFor)

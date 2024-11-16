@@ -25,15 +25,15 @@ class BuyerActor(val httpHandler: HttpHandler, val authToken: String = "00000000
         return httpHandler(Request(method = POST, "/bid").with(bidLens of Bid(id, price)))
     }
 
-    fun auctionResult(auction: Auction): AuctionResult {
-        val response = httpHandler(Request(GET, "/auction-result").with(id of auction.productId))
+    fun auctionResult(auctionId: AuctionId): AuctionResult {
+        val response = httpHandler(Request(GET, "/auction-result").with(auctionIdLens of auctionId))
         return auctionResult(response)
     }
 
     private val activeAuctions = Body.auto<List<Auction>>().toLens()
     private val auctionResult = Body.auto<AuctionResult>().toLens()
     private val bidLens = Body.auto<Bid>().toLens()
-    private val id = Body.auto<UUID>().toLens()
+    private val auctionIdLens = Body.auto<AuctionId>().toLens()
 }
 
 data class AuctionResult(val userId: UserId, val winningBid: Money)
