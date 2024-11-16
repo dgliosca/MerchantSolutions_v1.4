@@ -9,23 +9,19 @@ import com.merchantsolutions.domain.BidWithUser
 import com.merchantsolutions.domain.IdGenerator
 import com.merchantsolutions.domain.Product
 import com.merchantsolutions.domain.ProductId
-import com.merchantsolutions.domain.ProductId.Companion.of
 import com.merchantsolutions.domain.ProductToRegister
 import com.merchantsolutions.ports.Auctions
+import com.merchantsolutions.ports.Products
 import com.merchantsolutions.ports.Users
 
-class AuctionHub(val idGenerator: IdGenerator, val users: Users, val auctions: Auctions) {
+class AuctionHub(val idGenerator: IdGenerator, val users: Users, val auctions: Auctions, val products: Products) {
     private val bids = mutableListOf<BidWithUser>()
-    private val products = mutableListOf<Product>()
 
     fun add(product: ProductToRegister): ProductId {
-        val productId = of(idGenerator())
-        val product = Product(productId, product.description, product.minimumSellingPrice)
-        products.add(product)
-        return productId
+        return products.add(product)
     }
 
-    fun listProducts(): List<Product> = products
+    fun listProducts(): List<Product> = products.getProducts()
     fun activateAuctionFor(id: AuctionId): Boolean {
 
         val auction = auctions.getAuction(id)
@@ -63,7 +59,7 @@ class AuctionHub(val idGenerator: IdGenerator, val users: Users, val auctions: A
     }
 
     fun createAuction(productId: ProductId): AuctionId {
-        val product = products.find { it.productId == productId }
+        val product = products.get(productId)
         if (product == null) throw IllegalStateException("Auction cannot be crated because product doesn't exist with id: $productId")
         val auctionId = AuctionId(idGenerator())
         auctions.add(Auction(auctionId, productId.value, product.minimumSellingPrice))

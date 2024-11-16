@@ -2,6 +2,7 @@ package com.merchantsolutions
 
 import com.merchantsolutions.SellerActor.Product
 import com.merchantsolutions.adapters.InMemoryAuctions
+import com.merchantsolutions.adapters.InMemoryProducts
 import com.merchantsolutions.adapters.InMemoryUsers
 import com.merchantsolutions.application.AuctionHub
 import com.merchantsolutions.domain.Money
@@ -21,7 +22,7 @@ import java.math.BigDecimal
 
 class AuctionServerTest {
 
-    private val auctionServer = auctionApp(AuctionHub(testing, InMemoryUsers(), InMemoryAuctions()))
+    private val auctionServer = auctionApp(AuctionHub(testing, InMemoryUsers(), InMemoryAuctions(), InMemoryProducts(testing)))
     private val buyerOne = BuyerActor(auctionServer)
     private val buyerOneAuthenticated = buyerOne.authenticated()
 
