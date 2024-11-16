@@ -47,10 +47,8 @@ class AuctionServerTest {
 
     @Test
     fun `there is one auction to bid`() {
-        seller.registerProduct(SellerActor.Product("Antique Vase", Money(gbp, BigDecimal("12.13"))))
-        val product = backOffice.listProducts()
-            .find { it.description == "Antique Vase" } ?: fail("Couldn't find product")
-        val auctionId = backOffice.createAuction(ProductId(product.id))
+        val productId = seller.registerProduct(SellerActor.Product("Antique Vase", Money(gbp, BigDecimal("12.13"))))
+        val auctionId = backOffice.createAuction(productId)
         backOffice.startAuction(auctionId)
 
         val auctionList = buyerOne.authenticated().listAuctions()
@@ -59,29 +57,25 @@ class AuctionServerTest {
 
     @Test
     fun `buyer can bid until auction closes`() {
-        seller.registerProduct(SellerActor.Product("Antique Vase", Money(gbp, BigDecimal("12.13"))))
-        val product = backOffice.listProducts()
-            .find { it.description == "Antique Vase" } ?: fail("Couldn't find product")
-        val auctionId = backOffice.createAuction(ProductId(product.id))
+        val productId = seller.registerProduct(SellerActor.Product("Antique Vase", Money(gbp, BigDecimal("12.13"))))
+        val auctionId = backOffice.createAuction(productId)
         backOffice.startAuction(auctionId)
 
         val auction = buyerOne.authenticated().listAuctions().first()
         buyerOne.placeABid(auction.auctionId, Money(gbp, BigDecimal("12.13")))
-        backOffice.closeAuction(product.id)
+        backOffice.closeAuction(productId)
     }
 
     @Test
     fun `buyer place a bid and win`() {
-        seller.registerProduct(SellerActor.Product("Antique Vase", Money(gbp, BigDecimal("12.13"))))
-        val product = backOffice.listProducts()
-            .find { it.description == "Antique Vase" } ?: fail("Couldn't find product")
-        val auctionId = backOffice.createAuction(ProductId(product.id))
+        val productId = seller.registerProduct(SellerActor.Product("Antique Vase", Money(gbp, BigDecimal("12.13"))))
+        val auctionId = backOffice.createAuction(productId)
         backOffice.startAuction(auctionId)
 
         val buyer = buyerOne.authenticated()
         val auction = buyer.listAuctions().first()
         buyer.placeABid(auction.auctionId, Money(gbp, BigDecimal("12.13")))
-        backOffice.closeAuction(product.id)
+        backOffice.closeAuction(productId)
 
         assertThat(
             buyer.auctionResult(auction), equalTo(
@@ -124,10 +118,8 @@ class AuctionServerTest {
 
     @Test
     fun `bidder who first bid the highest price win`() {
-        seller.registerProduct(SellerActor.Product("Antique Vase", Money(gbp, BigDecimal("10.00"))))
-        val product = backOffice.listProducts()
-            .find { it.description == "Antique Vase" } ?: fail("Couldn't find product")
-        val auctionId = backOffice.createAuction(ProductId(product.id))
+        val productId = seller.registerProduct(SellerActor.Product("Antique Vase", Money(gbp, BigDecimal("10.00"))))
+        val auctionId = backOffice.createAuction(productId)
         backOffice.startAuction(auctionId)
 
         val authenticatedBuyerOne = buyerOne.authenticated()
@@ -137,7 +129,7 @@ class AuctionServerTest {
         authenticatedBuyerOne.placeABid(auctionId, Money(gbp, BigDecimal("11.00")))
         authenticatedBuyerTwo.placeABid(auctionId, Money(gbp, BigDecimal("11.00")))
 
-        backOffice.closeAuction(product.id)
+        backOffice.closeAuction(productId)
 
         assertThat(
             authenticatedBuyerOne.auctionResult(auction), equalTo(

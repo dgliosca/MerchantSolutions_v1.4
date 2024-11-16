@@ -33,12 +33,12 @@ class BackOfficeActor(http: HttpHandler) {
     }
 
     fun listProducts(): List<BackOfficeProduct> = backOfficeProducts(authenticatedHttp(Request(GET, "/products")))
-    fun closeAuction(id: UUID) {
-        authenticatedHttp(Request(POST, "/close-auction").with(productIdLens of id))
+    fun closeAuction(productId: ProductId) {
+        authenticatedHttp(Request(POST, "/close-auction").with(productIdLens of productId.value))
     }
 
-    fun createAuction(product: ProductId) : AuctionId {
-        val response = authenticatedHttp(Request(POST, "/create-auction").with(productIdLens of product.value))
+    fun createAuction(productId: ProductId) : AuctionId {
+        val response = authenticatedHttp(Request(POST, "/create-auction").with(productIdLens of productId.value))
         return response.json<AuctionId>()
     }
 }
