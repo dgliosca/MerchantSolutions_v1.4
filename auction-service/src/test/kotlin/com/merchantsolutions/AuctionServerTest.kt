@@ -3,7 +3,6 @@ package com.merchantsolutions
 import com.merchantsolutions.application.AuctionHub
 import com.merchantsolutions.domain.Money
 import com.merchantsolutions.domain.Money.Companion.gbp
-import com.merchantsolutions.domain.ProductId
 import com.merchantsolutions.domain.UserId
 import com.merchantsolutions.drivers.http.auctionApp
 import org.http4k.core.*
@@ -14,32 +13,34 @@ import com.natpryce.hamkrest.hasElement
 import com.natpryce.hamkrest.isEmpty
 import org.http4k.core.Status.Companion.CONFLICT
 import org.http4k.core.Status.Companion.UNAUTHORIZED
-import org.junit.jupiter.api.fail
 import java.math.BigDecimal
 import java.util.UUID
-import kotlin.lazy
 
 class AuctionServerTest {
 
     private val auctionServer: HttpHandler = auctionApp(AuctionHub(testing))
     private val buyerOne: BuyerActor = BuyerActor(auctionServer)
+    private val buyerOneAuthenticated: BuyerActor = buyerOne.authenticated()
+
     private val buyerTwo: BuyerActor = BuyerActor(auctionServer, "00000000-0000-0000-0000-000000000002")
-    private val seller = SellerActor(auctionServer)
+    private val buyerTwoAuthenticated: BuyerActor = buyerTwo.authenticated()
+
+    private val sellerAuthenticated = SellerActor(auctionServer)
     private val backOffice = BackOfficeActor(auctionServer)
 
     @Test
     fun `seller can register a new product`() {
-        seller.registerProduct(SellerActor.Product("candle-sticks", Money(gbp, BigDecimal("12.13"))))
+        sellerAuthenticated.registerProduct(SellerActor.Product("candle-sticks", Money(gbp, BigDecimal("12.13"))))
     }
 
     @Test
     fun `there are no auction to bid`() {
-        assertThat(buyerOne.authenticated().listAuctions(), equalTo(emptyList()))
+        assertThat(buyerOneAuthenticated.listAuctions(), equalTo(emptyList()))
     }
 
     @Test
     fun `backoffice list products to start selling`() {
-        seller.registerProduct(SellerActor.Product("Candle Sticks", Money(gbp, BigDecimal("12.13"))))
+        sellerAuthenticated.registerProduct(SellerActor.Product("Candle Sticks", Money(gbp, BigDecimal("12.13"))))
         val products = backOffice.listProducts()
 
         assertThat(products.map { it.description }, hasElement("Candle Sticks"))
@@ -47,36 +48,35 @@ class AuctionServerTest {
 
     @Test
     fun `there is one auction to bid`() {
-        val productId = seller.registerProduct(SellerActor.Product("Antique Vase", Money(gbp, BigDecimal("12.13"))))
+        val productId = sellerAuthenticated.registerProduct(SellerActor.Product("Antique Vase", Money(gbp, BigDecimal("12.13"))))
         val auctionId = backOffice.createAuction(productId)
         backOffice.startAuction(auctionId)
 
-        val auctionList = buyerOne.authenticated().listAuctions()
+        val auctionList = buyerOneAuthenticated.listAuctions()
         assertThat(auctionList, !isEmpty)
     }
 
     @Test
     fun `buyer can bid until auction closes`() {
-        val productId = seller.registerProduct(SellerActor.Product("Antique Vase", Money(gbp, BigDecimal("12.13"))))
+        val productId = sellerAuthenticated.registerProduct(SellerActor.Product("Antique Vase", Money(gbp, BigDecimal("12.13"))))
         val auctionId = backOffice.createAuction(productId)
         backOffice.startAuction(auctionId)
 
-        buyerOne.placeABid(auctionId, Money(gbp, BigDecimal("12.13")))
+        buyerOneAuthenticated.placeABid(auctionId, Money(gbp, BigDecimal("12.13")))
         backOffice.closeAuction(productId)
     }
 
     @Test
     fun `buyer place a bid and win`() {
-        val productId = seller.registerProduct(SellerActor.Product("Antique Vase", Money(gbp, BigDecimal("12.13"))))
+        val productId = sellerAuthenticated.registerProduct(SellerActor.Product("Antique Vase", Money(gbp, BigDecimal("12.13"))))
         val auctionId = backOffice.createAuction(productId)
         backOffice.startAuction(auctionId)
 
-        val buyer = buyerOne.authenticated()
-        buyer.placeABid(auctionId, Money(gbp, BigDecimal("12.13")))
+        buyerOneAuthenticated.placeABid(auctionId, Money(gbp, BigDecimal("12.13")))
         backOffice.closeAuction(productId)
 
         assertThat(
-            buyer.auctionResult(auctionId), equalTo(
+            buyerOneAuthenticated.auctionResult(auctionId), equalTo(
                 AuctionResult(
                     UserId(UUID.fromString("00000000-0000-0000-0000-000000000001")),
                     Money(gbp, BigDecimal("12.13"))
@@ -87,43 +87,39 @@ class AuctionServerTest {
 
     @Test
     fun `unauthorised buyer cannot bid`() {
-        val productId = seller.registerProduct(SellerActor.Product("Antique Vase", Money(gbp, BigDecimal("12.13"))))
+        val productId = sellerAuthenticated.registerProduct(SellerActor.Product("Antique Vase", Money(gbp, BigDecimal("12.13"))))
         val auctionId = backOffice.createAuction(productId)
         backOffice.startAuction(auctionId)
 
-        val response = buyerOne.notAuthenticated().placeABid(auctionId, Money(gbp, BigDecimal("12.13")))
+        val response = buyerOne.placeABid(auctionId, Money(gbp, BigDecimal("12.13")))
 
         assertThat(response.status, equalTo(expected = UNAUTHORIZED))
     }
 
     @Test
     fun `bid gets ignored if below minimum seller price`() {
-        val productId = seller.registerProduct(SellerActor.Product("Antique Vase", Money(gbp, BigDecimal("10.00"))))
+        val productId = sellerAuthenticated.registerProduct(SellerActor.Product("Antique Vase", Money(gbp, BigDecimal("10.00"))))
         val auctionId = backOffice.createAuction(productId)
         backOffice.startAuction(auctionId)
 
-        val authenticatedBuyer = buyerOne.authenticated()
-        val response = authenticatedBuyer.placeABid(auctionId, Money(gbp, BigDecimal("9.00")))
+        val response = buyerOneAuthenticated.placeABid(auctionId, Money(gbp, BigDecimal("9.00")))
 
         assertThat(response.status, equalTo(CONFLICT))
     }
 
     @Test
     fun `bidder who first bid the highest price win`() {
-        val productId = seller.registerProduct(SellerActor.Product("Antique Vase", Money(gbp, BigDecimal("10.00"))))
+        val productId = sellerAuthenticated.registerProduct(SellerActor.Product("Antique Vase", Money(gbp, BigDecimal("10.00"))))
         val auctionId = backOffice.createAuction(productId)
         backOffice.startAuction(auctionId)
 
-        val authenticatedBuyerOne = buyerOne.authenticated()
-        val authenticatedBuyerTwo = buyerTwo.authenticated()
-
-        authenticatedBuyerOne.placeABid(auctionId, Money(gbp, BigDecimal("11.00")))
-        authenticatedBuyerTwo.placeABid(auctionId, Money(gbp, BigDecimal("11.00")))
+        buyerOneAuthenticated.placeABid(auctionId, Money(gbp, BigDecimal("11.00")))
+        buyerTwoAuthenticated.placeABid(auctionId, Money(gbp, BigDecimal("11.00")))
 
         backOffice.closeAuction(productId)
 
         assertThat(
-            authenticatedBuyerOne.auctionResult(auctionId), equalTo(
+            buyerOneAuthenticated.auctionResult(auctionId), equalTo(
                 AuctionResult(
                     UserId(UUID.fromString("00000000-0000-0000-0000-000000000001")),
                     Money(gbp, BigDecimal("11.00"))
