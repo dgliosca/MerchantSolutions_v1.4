@@ -2,6 +2,7 @@ package com.merchantsolutions.adapters
 
 import com.merchantsolutions.domain.Auction
 import com.merchantsolutions.domain.AuctionId
+import com.merchantsolutions.domain.AuctionState.closed
 import com.merchantsolutions.domain.AuctionState.opened
 import com.merchantsolutions.domain.BidWithUser
 import com.merchantsolutions.ports.Auctions
@@ -44,5 +45,12 @@ class InMemoryAuctions : Auctions {
             auctions.add(auction.copy(state = opened))
             true
         }
+    }
+
+    override fun closeAuction(id: AuctionId): Boolean {
+        val auction = getAuction(id) ?: return false
+        auctions.remove(auction)
+        auctions.add(auction.copy(state = closed))
+        return true
     }
 }

@@ -29,10 +29,7 @@ class AuctionHub(val idGenerator: IdGenerator, val users: Users, val auctions: A
     fun openedAuctions(): List<Auction> = auctions.activeAuctions()
 
     fun closeAuctionFor(auctionId: AuctionId) {
-        val auction = auctions.getAuction(auctionId)
-            ?: throw IllegalStateException("There is no auction for: $auctionId")
-        auctions.remove(auction)
-        auctions.add(auction.copy(state = closed))
+        auctions.closeAuction(auctionId)
     }
 
     fun auctionResultFor(auctionId: AuctionId): AuctionResult {
