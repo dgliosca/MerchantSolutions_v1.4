@@ -143,7 +143,7 @@ class AuctionServerTest {
     }
 
     @Test
-    fun `auction not found result`() {
+    fun `auction not found`() {
         val auctionId = AuctionId(UUID.fromString("00000000-0001-0001-0001-000000000000"))
         val actual = buyerOneAuthenticated.auctionResult(auctionId)
         assertThat(actual.status, equalTo(NOT_FOUND))
