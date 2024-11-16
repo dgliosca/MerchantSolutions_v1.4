@@ -14,7 +14,7 @@ import com.merchantsolutions.domain.ProductToRegister
 import com.merchantsolutions.ports.Auctions
 import com.merchantsolutions.ports.Users
 
-class AuctionHub(val idGenerator: IdGenerator, val users: Users, val auctionRepo: Auctions) {
+class AuctionHub(val idGenerator: IdGenerator, val users: Users, val auctions: Auctions) {
     private val bids = mutableListOf<BidWithUser>()
     private val products = mutableListOf<Product>()
 
@@ -28,27 +28,27 @@ class AuctionHub(val idGenerator: IdGenerator, val users: Users, val auctionRepo
     fun listProducts(): List<Product> = products
     fun activateAuctionFor(id: AuctionId): Boolean {
 
-        val auction = auctionRepo.getAuction(id)
+        val auction = auctions.getAuction(id)
         return if (auction == null) {
             false
         } else {
-            auctionRepo.remove(auction)
-            auctionRepo.add(auction.copy(state = opened))
+            auctions.remove(auction)
+            auctions.add(auction.copy(state = opened))
             true
         }
     }
 
-    fun activeAuctions(): List<Auction> = auctionRepo.activeAuctions()
+    fun activeAuctions(): List<Auction> = auctions.activeAuctions()
 
     fun closeAuctionFor(auctionId: AuctionId) {
-        val auction = auctionRepo.getAuction(auctionId)
+        val auction = auctions.getAuction(auctionId)
             ?: throw IllegalStateException("There is no auction for: $auctionId")
-        auctionRepo.remove(auction)
-        auctionRepo.add(auction.copy(state = closed))
+        auctions.remove(auction)
+        auctions.add(auction.copy(state = closed))
     }
 
     fun auctionResultFor(auctionId: AuctionId): AuctionResult {
-        val auction = auctionRepo.getAuction(auctionId)
+        val auction = auctions.getAuction(auctionId)
             ?: throw IllegalStateException("There is no auction for: $auctionId")
         return when (auction.state) {
             opened -> {
@@ -66,12 +66,12 @@ class AuctionHub(val idGenerator: IdGenerator, val users: Users, val auctionRepo
         val product = products.find { it.productId == productId }
         if (product == null) throw IllegalStateException("Auction cannot be crated because product doesn't exist with id: $productId")
         val auctionId = AuctionId(idGenerator())
-        auctionRepo.add(Auction(auctionId, productId.value, product.minimumSellingPrice))
+        auctions.add(Auction(auctionId, productId.value, product.minimumSellingPrice))
         return auctionId
     }
 
     fun add(bid: BidWithUser): Boolean {
-        val auction = auctionRepo.getAuction(bid.auctionId)
+        val auction = auctions.getAuction(bid.auctionId)
         if (auction == null) throw IllegalStateException("Auction doesn't exist with id: ${bid.auctionId}")
 
         return if (bid.price < auction.minimumSellingPrice) {
