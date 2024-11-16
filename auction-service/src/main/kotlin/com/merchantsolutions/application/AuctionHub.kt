@@ -39,8 +39,8 @@ class AuctionHub(val idGenerator: IdGenerator) {
 
     fun activeAuctions(): List<Auction> = auctions.filter { it.state == opened }
 
-    fun closeAuctionFor(productId: UUID) {
-        val auction = auctions.find { it.productId == productId }
+    fun closeAuctionFor(productId: ProductId) {
+        val auction = auctions.find { it.productId == productId.value }
             ?: throw IllegalStateException("There is no auction for: $productId")
         auction.copy(state = closed)
         auctions.remove(auction)
