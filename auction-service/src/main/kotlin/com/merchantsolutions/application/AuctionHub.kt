@@ -88,13 +88,10 @@ class AuctionHub(val idGenerator: IdGenerator) {
         }
     }
 
-    fun getUserByToken(token: String?): UserId? {
-        if (token == null) return null
-        return if (users.isValid(token)) {
-            users.getUserByToken(token)?.userId
-        } else
-            null
-    }
+    fun getUserByToken(token: String) = if (users.isValid(token)) {
+        users.getUserByToken(token)?.userId
+    } else
+        null
 
     fun isValid(token: String?): Boolean = token?.let { users.isValid(token) } == true
 }
