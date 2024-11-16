@@ -1,6 +1,7 @@
 package com.merchantsolutions
 
 import com.merchantsolutions.SellerActor.Product
+import com.merchantsolutions.adapters.InMemoryUsers
 import com.merchantsolutions.application.AuctionHub
 import com.merchantsolutions.domain.Money
 import com.merchantsolutions.domain.Money.Companion.gbp
@@ -22,7 +23,7 @@ import java.util.UUID
 
 class AuctionServerTest {
 
-    private val auctionServer = auctionApp(AuctionHub(testing))
+    private val auctionServer = auctionApp(AuctionHub(testing, InMemoryUsers()))
     private val buyerOne = BuyerActor(auctionServer)
     private val buyerOneAuthenticated = buyerOne.authenticated()
 

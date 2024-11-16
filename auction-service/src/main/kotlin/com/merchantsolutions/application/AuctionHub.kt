@@ -12,9 +12,9 @@ import com.merchantsolutions.domain.ProductToRegister
 import com.merchantsolutions.adapters.InMemoryUsers
 import com.merchantsolutions.domain.ProductId
 import com.merchantsolutions.domain.ProductId.Companion.of
+import com.merchantsolutions.ports.Users
 
-class AuctionHub(val idGenerator: IdGenerator) {
-    private val users = InMemoryUsers()
+class AuctionHub(val idGenerator: IdGenerator, val users: Users) {
     private val bids = mutableListOf<BidWithUser>()
     private val products = mutableListOf<Product>()
     private val auctions = mutableListOf<Auction>()
