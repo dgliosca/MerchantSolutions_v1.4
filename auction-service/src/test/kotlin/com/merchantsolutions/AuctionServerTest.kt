@@ -1,16 +1,14 @@
 package com.merchantsolutions
 
 import com.merchantsolutions.SellerActor.Product
+import com.merchantsolutions.adapters.InMemoryAuctions
 import com.merchantsolutions.adapters.InMemoryUsers
 import com.merchantsolutions.application.AuctionHub
 import com.merchantsolutions.domain.Money
 import com.merchantsolutions.domain.Money.Companion.gbp
 import com.merchantsolutions.domain.ProductId
-import com.merchantsolutions.domain.ProductId.Companion.of
 import com.merchantsolutions.domain.UserId
 import com.merchantsolutions.drivers.http.auctionApp
-import org.http4k.core.*
-import org.junit.jupiter.api.Test
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.hasElement
@@ -18,12 +16,12 @@ import com.natpryce.hamkrest.isEmpty
 import org.http4k.core.Status.Companion.CONFLICT
 import org.http4k.core.Status.Companion.OK
 import org.http4k.core.Status.Companion.UNAUTHORIZED
+import org.junit.jupiter.api.Test
 import java.math.BigDecimal
-import java.util.UUID
 
 class AuctionServerTest {
 
-    private val auctionServer = auctionApp(AuctionHub(testing, InMemoryUsers()))
+    private val auctionServer = auctionApp(AuctionHub(testing, InMemoryUsers(), InMemoryAuctions()))
     private val buyerOne = BuyerActor(auctionServer)
     private val buyerOneAuthenticated = buyerOne.authenticated()
 
@@ -32,7 +30,7 @@ class AuctionServerTest {
 
     private val sellerAuthenticated = SellerActor(auctionServer)
     private val backOffice = BackOfficeActor(auctionServer)
-    val userIdOne = UserId.of("00000000-0000-0000-0000-000000000001")
+    private val userIdOne = UserId.of("00000000-0000-0000-0000-000000000001")
 
     @Test
     fun `seller can register a new product`() {
