@@ -27,12 +27,13 @@ class BackOfficeActor(http: HttpHandler) {
     val authenticatedHttp = BearerAuth("00000000-0000-0000-0000-000000000003")
         .then(http)
 
-    fun startAuction(id: AuctionId) {
-        val result = authenticatedHttp(Request(POST, "/start-auction").with(auctionIdLens of id))
+    fun startAuction(auctionId: AuctionId) {
+        val result = authenticatedHttp(Request(POST, "/start-auction").with(auctionIdLens of auctionId))
         assertThat(result.status, equalTo(OK))
     }
 
     fun listProducts(): List<BackOfficeProduct> = backOfficeProducts(authenticatedHttp(Request(GET, "/products")))
+
     fun closeAuction(productId: ProductId) {
         authenticatedHttp(Request(POST, "/close-auction").with(productIdLens of productId))
     }
