@@ -34,4 +34,15 @@ class InMemoryAuctions : Auctions {
     override fun winningBid(id: AuctionId): BidWithUser {
         return bids.filter { it.auctionId == id }.maxBy { it.price }
     }
+
+    override fun activateAuction(id: AuctionId): Boolean {
+        val auction = getAuction(id)
+        return if (auction == null) {
+            false
+        } else {
+            auctions.remove(auction)
+            auctions.add(auction.copy(state = opened))
+            true
+        }
+    }
 }

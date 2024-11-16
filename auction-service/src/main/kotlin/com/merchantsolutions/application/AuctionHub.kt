@@ -23,14 +23,7 @@ class AuctionHub(val idGenerator: IdGenerator, val users: Users, val auctions: A
     fun listProducts(): List<Product> = products.getProducts()
 
     fun activateAuctionFor(id: AuctionId): Boolean {
-        val auction = auctions.getAuction(id)
-        return if (auction == null) {
-            false
-        } else {
-            auctions.remove(auction)
-            auctions.add(auction.copy(state = opened))
-            true
-        }
+        return auctions.activateAuction(id)
     }
 
     fun activeAuctions(): List<Auction> = auctions.activeAuctions()

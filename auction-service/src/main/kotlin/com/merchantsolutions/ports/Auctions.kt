@@ -11,4 +11,5 @@ interface Auctions {
     fun remove(auction: Auction)
     fun activeAuctions(): List<Auction>
     fun winningBid(id: AuctionId) : BidWithUser
+    fun activateAuction(id: AuctionId): Boolean
 }
