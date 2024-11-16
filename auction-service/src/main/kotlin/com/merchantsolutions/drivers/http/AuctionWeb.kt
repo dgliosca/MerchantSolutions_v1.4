@@ -44,7 +44,7 @@ fun auctionApp(auctionHub: AuctionHub): RoutingHttpHandler {
             "/active-auctions" bind GET to { Response(OK).with(AuctionResult.lens of auctionHub.activeAuctions()) },
             "/start-auction" bind POST to { request ->
                 val auctionId = request.json<AuctionId>()
-                if (auctionHub.activateAuctionFor(auctionId))
+                if (auctionHub.openAuctionFor(auctionId))
                     Response(OK)
                 else
                     Response(CONFLICT)
