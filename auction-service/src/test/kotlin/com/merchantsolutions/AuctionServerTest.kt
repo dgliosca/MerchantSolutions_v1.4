@@ -130,11 +130,23 @@ class AuctionServerTest {
         val auctionId = backOffice.createAuction(ProductId(product.id))
         backOffice.startAuction(auctionId)
 
-        val authenticatedBuyer = buyerOne.authenticated()
-        val auction = authenticatedBuyer.listAuctions().first()
-        val response = authenticatedBuyer.placeABid(auction, Money(gbp, BigDecimal("9.00")))
+        val authenticatedBuyerOne = buyerOne.authenticated()
+        val authenticatedBuyerTwo = buyerTwo.authenticated()
+        val auction = authenticatedBuyerOne.listAuctions().first()
 
-        assertThat(response.status, equalTo(CONFLICT))
+        authenticatedBuyerOne.placeABid(auction, Money(gbp, BigDecimal("11.00")))
+        authenticatedBuyerTwo.placeABid(auction, Money(gbp, BigDecimal("11.00")))
+
+        backOffice.closeAuction(product.id)
+
+        assertThat(
+            authenticatedBuyerOne.auctionResult(auction), equalTo(
+                AuctionResult(
+                    UserId(UUID.fromString("00000000-0000-0000-0000-000000000001")),
+                    Money(gbp, BigDecimal("11.00"))
+                )
+            )
+        )
     }
 
 }
