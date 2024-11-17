@@ -41,4 +41,13 @@ subprojects {
     tasks.withType<Test> {
         useJUnitPlatform()
     }
+    val javaVersion = 21
+    java {
+        toolchain {
+            languageVersion.set(JavaLanguageVersion.of(javaVersion))
+        }
+    }
+    tasks.withType(JavaCompile::class) {
+        options.release.set(javaVersion)
+    }
 }
