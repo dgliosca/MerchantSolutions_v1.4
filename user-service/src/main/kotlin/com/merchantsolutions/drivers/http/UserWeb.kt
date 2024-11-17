@@ -1,6 +1,7 @@
 package com.merchantsolutions.drivers.http
 
 import com.merchantsolutions.UserJson.auto
+import com.merchantsolutions.UserJson.json
 import com.merchantsolutions.application.UserHub
 import com.merchantsolutions.domain.User
 import com.merchantsolutions.domain.UserId
@@ -16,7 +17,11 @@ import org.http4k.routing.routes
 
 fun userApp(userHub: UserHub): RoutingHttpHandler {
     return routes(
-        "/is-valid" bind GET to { Response(OK).with(Body.auto<Boolean>().toLens() of true) },
+        "/is-valid" bind GET to { request ->
+            val token = request.json<String>()
+            val result = userHub.isValid(token)
+            Response(OK).with(Body.auto<Boolean>().toLens() of result)
+        },
         "/user-by-token" bind GET to {
             Response(OK).with(
                 Body.auto<User>().toLens() of User(UserId.of("3d02036f-4087-46e4-8a30-39d234d61de3"))
