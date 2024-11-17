@@ -2,6 +2,8 @@ package com.merchantsolutions
 
 import com.merchantsolutions.UserJson.auto
 import com.merchantsolutions.UserJson.json
+import com.merchantsolutions.domain.User
+import com.merchantsolutions.domain.UserId
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
 import org.http4k.core.Body
@@ -24,11 +26,21 @@ class UserServiceTest {
         val response = userService(Request(GET, "/is-valid").with(Body.auto<String>().toLens() of "123"))
         assertThat(response.json<Boolean>(), equalTo(true))
     }
+
+    @Test
+    fun `user by token`() {
+        val response = userService(Request(GET, "/user-by-token").with(Body.auto<String>().toLens() of "123"))
+        assertThat(response.json<User>(), equalTo(User(UserId.of("3d02036f-4087-46e4-8a30-39d234d61de3"))))
+    }
 }
 
 fun userApp(): RoutingHttpHandler {
     return routes(
         "/is-valid" bind GET to { Response(OK).with(Body.auto<Boolean>().toLens() of true) },
-        "/user-by-token" bind GET to { Response(OK) }
+        "/user-by-token" bind GET to {
+            Response(OK).with(
+                Body.auto<User>().toLens() of User(UserId.of("3d02036f-4087-46e4-8a30-39d234d61de3"))
+            )
+        }
     )
 }
