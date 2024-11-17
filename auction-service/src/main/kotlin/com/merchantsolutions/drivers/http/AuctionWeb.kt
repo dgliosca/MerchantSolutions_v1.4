@@ -13,9 +13,10 @@ import com.merchantsolutions.domain.Money
 import com.merchantsolutions.domain.Product
 import com.merchantsolutions.domain.ProductId
 import com.merchantsolutions.domain.ProductToRegister
-import org.http4k.core.*
+import org.http4k.core.Body
 import org.http4k.core.Method.GET
 import org.http4k.core.Method.POST
+import org.http4k.core.Response
 import org.http4k.core.Status.Companion.CONFLICT
 import org.http4k.core.Status.Companion.FORBIDDEN
 import org.http4k.core.Status.Companion.NOT_FOUND
@@ -27,7 +28,6 @@ import org.http4k.lens.bearerToken
 import org.http4k.routing.RoutingHttpHandler
 import org.http4k.routing.bind
 import org.http4k.routing.routes
-import java.util.*
 
 fun auctionApp(auctionHub: AuctionHub): RoutingHttpHandler {
     val validateTokenFilter = BearerAuth({ auctionHub.isValid(it) })
@@ -85,7 +85,6 @@ val auctionClosedLens = Body.auto<AuctionClosed>().toLens()
 val auctionInProgressLens = Body.auto<AuctionInProgress>().toLens()
 val auctionIdLens = Body.auto<AuctionId>().toLens()
 val listProductsLens = Body.auto<List<Product>>().toLens()
-val uuid = Body.auto<UUID>().toLens()
 val productIdLens = Body.auto<ProductId>().toLens()
 
 private data class Bid(val auctionId: AuctionId, val price: Money)
