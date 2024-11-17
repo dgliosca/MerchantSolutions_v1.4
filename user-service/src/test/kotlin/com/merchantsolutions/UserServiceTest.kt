@@ -2,6 +2,7 @@ package com.merchantsolutions
 
 import com.merchantsolutions.UserJson.auto
 import com.merchantsolutions.UserJson.json
+import com.merchantsolutions.application.UserHub
 import com.merchantsolutions.domain.User
 import com.merchantsolutions.domain.UserId
 import com.merchantsolutions.drivers.http.userApp
@@ -15,7 +16,8 @@ import org.http4k.core.with
 import org.junit.jupiter.api.Test
 
 class UserServiceTest {
-    private val userService = userApp()
+    private val userHub = UserHub()
+    private val userService = userApp(userHub)
 
     @Test
     fun `is valid user`() {

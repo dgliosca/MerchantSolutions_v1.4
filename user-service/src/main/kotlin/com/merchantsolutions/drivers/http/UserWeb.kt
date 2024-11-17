@@ -1,6 +1,7 @@
 package com.merchantsolutions.drivers.http
 
 import com.merchantsolutions.UserJson.auto
+import com.merchantsolutions.application.UserHub
 import com.merchantsolutions.domain.User
 import com.merchantsolutions.domain.UserId
 import org.http4k.core.Body
@@ -13,7 +14,7 @@ import org.http4k.routing.RoutingHttpHandler
 import org.http4k.routing.bind
 import org.http4k.routing.routes
 
-fun userApp(): RoutingHttpHandler {
+fun userApp(userHub: UserHub): RoutingHttpHandler {
     return routes(
         "/is-valid" bind GET to { Response(OK).with(Body.auto<Boolean>().toLens() of true) },
         "/user-by-token" bind GET to {
