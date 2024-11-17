@@ -32,6 +32,16 @@ class UserServiceTest {
     }
 
     @Test
+    fun `invalid token`() {
+        val response = userService(
+            Request(GET, "/is-valid").with(
+                Body.auto<String>().toLens() of "00000000-0000-0000-0000-00000000000X"
+            )
+        )
+        assertThat(response.json<Boolean>(), equalTo(false))
+    }
+
+    @Test
     fun `user by token`() {
         val response = userService(
             Request(GET, "/user-by-token").with(
