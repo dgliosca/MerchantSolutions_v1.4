@@ -2,6 +2,7 @@ package com.merchantsolutions
 
 import com.merchantsolutions.UserJson.auto
 import com.merchantsolutions.UserJson.json
+import com.merchantsolutions.adapters.InMemoryUsers
 import com.merchantsolutions.application.UserHub
 import com.merchantsolutions.domain.User
 import com.merchantsolutions.domain.UserId
@@ -16,12 +17,16 @@ import org.http4k.core.with
 import org.junit.jupiter.api.Test
 
 class UserServiceTest {
-    private val userHub = UserHub()
+    private val userHub = UserHub(InMemoryUsers())
     private val userService = userApp(userHub)
 
     @Test
     fun `is valid user`() {
-        val response = userService(Request(GET, "/is-valid").with(Body.auto<String>().toLens() of "123"))
+        val response = userService(
+            Request(GET, "/is-valid").with(
+                Body.auto<String>().toLens() of "00000000-0000-0000-0000-000000000001"
+            )
+        )
         assertThat(response.json<Boolean>(), equalTo(true))
     }
 

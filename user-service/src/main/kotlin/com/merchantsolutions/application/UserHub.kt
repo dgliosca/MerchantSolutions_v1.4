@@ -2,10 +2,11 @@ package com.merchantsolutions.application
 
 import com.merchantsolutions.domain.User
 import com.merchantsolutions.domain.UserId
+import com.merchantsolutions.ports.Users
 
-class UserHub {
+class UserHub(val users: Users) {
     fun isValid(token: String): Boolean {
-        return true
+        return users.isValid(token)
     }
 
     fun getUserByToken(string: String): User {
