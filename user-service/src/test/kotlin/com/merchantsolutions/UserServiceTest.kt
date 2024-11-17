@@ -32,8 +32,12 @@ class UserServiceTest {
 
     @Test
     fun `user by token`() {
-        val response = userService(Request(GET, "/user-by-token").with(Body.auto<String>().toLens() of "123"))
-        assertThat(response.json<User>(), equalTo(User(UserId.of("3d02036f-4087-46e4-8a30-39d234d61de3"))))
+        val response = userService(
+            Request(GET, "/user-by-token").with(
+                Body.auto<String>().toLens() of "00000000-0000-0000-0000-000000000001"
+            )
+        )
+        assertThat(response.json<User>(), equalTo(User(UserId.of("00000000-0000-0000-0000-000000000001"))))
     }
 }
 

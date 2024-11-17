@@ -8,6 +8,7 @@ import org.http4k.core.Body
 import org.http4k.core.Method.GET
 import org.http4k.core.Response
 import org.http4k.core.Response.Companion.invoke
+import org.http4k.core.Status.Companion.NOT_FOUND
 import org.http4k.core.Status.Companion.OK
 import org.http4k.core.with
 import org.http4k.routing.RoutingHttpHandler
@@ -23,10 +24,13 @@ fun userApp(userHub: UserHub): RoutingHttpHandler {
         },
         "/user-by-token" bind GET to { request ->
             val token = request.json<String>()
-            val result: User = userHub.getUserByToken(token)
-            Response(OK).with(
-                Body.auto<User>().toLens() of result
-            )
+            val result = userHub.getUserByToken(token)
+            when (result) {
+                null -> Response(NOT_FOUND)
+                else -> Response(OK).with(
+                    Body.auto<User>().toLens() of result
+                )
+            }
         }
     )
 }
