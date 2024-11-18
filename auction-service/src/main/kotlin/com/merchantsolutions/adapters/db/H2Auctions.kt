@@ -4,7 +4,7 @@ import com.merchantsolutions.domain.Auction
 import com.merchantsolutions.domain.AuctionId
 import com.merchantsolutions.domain.BidWithUser
 import com.merchantsolutions.domain.Money
-import com.merchantsolutions.domain.ProductId
+import com.merchantsolutions.domain.Product
 import com.merchantsolutions.ports.Auctions
 
 class H2Auctions : Auctions {
@@ -13,7 +13,7 @@ class H2Auctions : Auctions {
     }
 
     override fun createAuction(
-        productId: ProductId,
+        productId: Product,
         minimumSellingPrice: Money
     ): AuctionId {
         TODO("Not yet implemented")

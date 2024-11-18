@@ -7,7 +7,7 @@ import com.merchantsolutions.domain.AuctionState.opened
 import com.merchantsolutions.domain.BidWithUser
 import com.merchantsolutions.domain.IdGenerator
 import com.merchantsolutions.domain.Money
-import com.merchantsolutions.domain.ProductId
+import com.merchantsolutions.domain.Product
 import com.merchantsolutions.ports.Auctions
 
 class InMemoryAuctions(val idGenerator: IdGenerator) : Auctions {
@@ -18,9 +18,10 @@ class InMemoryAuctions(val idGenerator: IdGenerator) : Auctions {
         return auctions.find { it.auctionId == auctionId }
     }
 
-    override fun createAuction(productId: ProductId, minimumSellingPrice: Money) : AuctionId{
+    override fun createAuction(product: Product, minimumSellingPrice: Money) : AuctionId{
         val auctionId = AuctionId(idGenerator())
-        auctions.add(Auction(auctionId, minimumSellingPrice))
+
+        auctions.add(Auction(auctionId, product, minimumSellingPrice))
         return auctionId
     }
 

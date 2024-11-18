@@ -4,11 +4,11 @@ import com.merchantsolutions.domain.Auction
 import com.merchantsolutions.domain.AuctionId
 import com.merchantsolutions.domain.BidWithUser
 import com.merchantsolutions.domain.Money
-import com.merchantsolutions.domain.ProductId
+import com.merchantsolutions.domain.Product
 
 interface Auctions {
     fun getAuction(auctionId: AuctionId): Auction?
-    fun createAuction(productId: ProductId, minimumSellingPrice: Money) : AuctionId
+    fun createAuction(productId: Product, minimumSellingPrice: Money) : AuctionId
     fun createAuction(bid: BidWithUser)
     fun remove(auction: Auction)
     fun openedAuctions(): List<Auction>
