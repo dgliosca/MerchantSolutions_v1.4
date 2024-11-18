@@ -16,7 +16,20 @@ import java.util.UUID
 class H2Products(val statement: Statement, val idGenerator: IdGenerator) : Products {
 
     override fun getProducts(): List<Product> {
-        TODO("Not yet implemented")
+        val products = mutableListOf<Product>()
+        val selectSQL = "SELECT * FROM products"
+        val rs = statement.executeQuery(selectSQL)
+
+        while (rs.next()) {
+            val productId = ProductId(UUID.fromString(rs.getString("id")))
+            val description = rs.getString("description")
+            val monetaryAmount = rs.getBigDecimal("minimum_selling_price")
+            val currency = Currency.getInstance(rs.getString("currency"))
+            val product = Product(productId, description, Money(currency, monetaryAmount))
+            products.add(product)
+        }
+
+        return products
     }
 
     override fun get(productId: ProductId): Product? {

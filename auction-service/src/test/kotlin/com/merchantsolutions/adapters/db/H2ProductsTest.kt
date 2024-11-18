@@ -8,12 +8,22 @@ import com.merchantsolutions.domain.ProductToRegister
 import com.merchantsolutions.testing
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
+import com.natpryce.hamkrest.hasSize
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import java.math.BigDecimal
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class H2ProductsTest {
-    val storage = H2DB()
-    val products = H2Products(storage.statement, testing)
+    private val storage: Storage = H2DB()
+    private val products = H2Products(storage.statement, testing)
+
+    @BeforeEach
+    fun beforeEach() {
+        storage.statement.execute("TRUNCATE TABLE PRODUCTS")
+    }
 
     @Test
     fun `add products`() {
@@ -28,6 +38,19 @@ class H2ProductsTest {
                     product.minimumSellingPrice
                 )
             )
+        )
+    }
+
+    @Test
+    fun `get all products`() {
+        val productOne = ProductToRegister("Candle Sticks", Money(gbp, BigDecimal("10.10")))
+        val productTwo = ProductToRegister("Antique Vase", Money(gbp, BigDecimal("5.10")))
+        products.add(productOne)
+        products.add(productTwo)
+
+        assertThat(
+            products.getProducts(),
+            hasSize(equalTo(2))
         )
     }
 }
