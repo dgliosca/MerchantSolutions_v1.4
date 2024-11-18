@@ -24,11 +24,11 @@ import java.util.UUID
 import com.merchantsolutions.AuctionJson.json
 import com.merchantsolutions.adapters.db.H2DB
 import com.merchantsolutions.adapters.db.Storage
+import com.natpryce.hamkrest.hasSize
 import org.http4k.core.Status.Companion.NOT_FOUND
 
 class AuctionServerTest {
-    private val storage: Storage = H2DB()
-    val auctionHub = AuctionHub(InMemoryUsers(), InMemoryAuctions(testing), InMemoryProducts(testing))
+    private val auctionHub = AuctionHub(InMemoryUsers(), InMemoryAuctions(testing), InMemoryProducts(testing))
     private val auctionServer = auctionApp(auctionHub)
     private val buyerOne = BuyerActor(auctionServer)
     private val buyerOneAuthenticated = buyerOne.authenticated()
@@ -54,6 +54,20 @@ class AuctionServerTest {
     }
 
     @Test
+    fun `list the auctions in which it is possible to bid`() {
+        val productOne = sellerAuthenticated.registerProduct(Product("Candle Sticks", Money(gbp, BigDecimal("12.13"))))
+        val productTwo = sellerAuthenticated.registerProduct(Product("Antique Vase", Money(gbp, BigDecimal("1.13"))))
+        val productThree = sellerAuthenticated.registerProduct(Product("Napolean Chair", Money(gbp, BigDecimal("10.13"))))
+
+        backOffice.createAuction(productOne)
+        openAuctionFor(productTwo)
+        openAuctionFor(productThree)
+
+        val auctionList = buyerOneAuthenticated.listAuctions()
+        assertThat(auctionList, hasSize(equalTo(2)))
+    }
+
+    @Test
     fun `backoffice list products to start selling`() {
         sellerAuthenticated.registerProduct(Product("Candle Sticks", Money(gbp, BigDecimal("12.13"))))
         val products = backOffice.listProducts()
@@ -64,11 +78,16 @@ class AuctionServerTest {
     @Test
     fun `there is one auction to bid`() {
         val productId = sellerAuthenticated.registerProduct(Product("Antique Vase", Money(gbp, BigDecimal("12.13"))))
-        val auctionId = backOffice.createAuction(productId)
-        backOffice.startAuction(auctionId)
+        openAuctionFor(productId)
 
         val auctionList = buyerOneAuthenticated.listAuctions()
         assertThat(auctionList, !isEmpty)
+    }
+
+    private fun openAuctionFor(productTwo: ProductId): AuctionId {
+        val auctionTwo = backOffice.createAuction(productTwo)
+        backOffice.startAuction(auctionTwo)
+        return auctionTwo
     }
 
     @Test
