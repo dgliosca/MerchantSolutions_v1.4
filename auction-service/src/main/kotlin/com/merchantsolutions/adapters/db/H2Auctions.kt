@@ -27,7 +27,7 @@ class H2Auctions : Auctions {
         TODO("Not yet implemented")
     }
 
-    override fun activeAuctions(): List<Auction> {
+    override fun openedAuctions(): List<Auction> {
         TODO("Not yet implemented")
     }
 

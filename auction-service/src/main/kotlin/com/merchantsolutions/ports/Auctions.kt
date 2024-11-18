@@ -11,7 +11,7 @@ interface Auctions {
     fun createAuction(productId: ProductId, minimumSellingPrice: Money) : AuctionId
     fun createAuction(bid: BidWithUser)
     fun remove(auction: Auction)
-    fun activeAuctions(): List<Auction>
+    fun openedAuctions(): List<Auction>
     fun winningBid(id: AuctionId) : BidWithUser
     fun openAuction(id: AuctionId): Boolean
     fun closeAuction(id: AuctionId) : Boolean

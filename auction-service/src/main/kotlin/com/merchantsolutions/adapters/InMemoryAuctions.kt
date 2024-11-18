@@ -7,7 +7,6 @@ import com.merchantsolutions.domain.AuctionState.opened
 import com.merchantsolutions.domain.BidWithUser
 import com.merchantsolutions.domain.IdGenerator
 import com.merchantsolutions.domain.Money
-import com.merchantsolutions.domain.Product
 import com.merchantsolutions.domain.ProductId
 import com.merchantsolutions.ports.Auctions
 
@@ -29,7 +28,7 @@ class InMemoryAuctions(val idGenerator: IdGenerator) : Auctions {
         auctions.remove(auction)
     }
 
-    override fun activeAuctions(): List<Auction> {
+    override fun openedAuctions(): List<Auction> {
         return auctions.filter { it.state == opened }
     }
 

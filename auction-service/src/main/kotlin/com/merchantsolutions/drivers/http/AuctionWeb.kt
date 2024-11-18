@@ -5,9 +5,12 @@ import com.merchantsolutions.AuctionJson.json
 import com.merchantsolutions.application.AuctionHub
 import com.merchantsolutions.domain.Auction
 import com.merchantsolutions.domain.AuctionId
+import com.merchantsolutions.domain.AuctionResult
 import com.merchantsolutions.domain.AuctionResult.AuctionClosed
 import com.merchantsolutions.domain.AuctionResult.AuctionInProgress
 import com.merchantsolutions.domain.AuctionResult.AuctionNotFound
+import com.merchantsolutions.domain.AuctionState
+import com.merchantsolutions.domain.AuctionState.closed
 import com.merchantsolutions.domain.BidWithUser
 import com.merchantsolutions.domain.Money
 import com.merchantsolutions.domain.Product
@@ -43,7 +46,11 @@ fun auctionApp(auctionHub: AuctionHub): RoutingHttpHandler {
                 val auctionId = auctionHub.createAuction(productId)
                 Response(OK).with(auctionIdLens of auctionId)
             },
-            "/active-auctions" bind GET to { Response(OK).with(AuctionResult.lens of auctionHub.openedAuctions()) },
+            "/active-auctions" bind GET to {
+                Response(OK).with(
+                    AuctionResultDto.lens of auctionHub.openedAuctions().toDto()
+                )
+            },
             "/start-auction" bind POST to { request ->
                 val auctionId = request.json<AuctionId>()
                 if (auctionHub.openAuctionFor(auctionId))
@@ -62,7 +69,8 @@ fun auctionApp(auctionHub: AuctionHub): RoutingHttpHandler {
             },
             "/auction-result" bind GET to { request ->
                 val auctionId = request.json<AuctionId>()
-                val auctionResultFor: com.merchantsolutions.domain.AuctionResult = auctionHub.auctionResultFor(auctionId)
+                val auctionResultFor: com.merchantsolutions.domain.AuctionResult =
+                    auctionHub.auctionResultFor(auctionId)
                 when (auctionResultFor) {
                     is AuctionClosed -> Response(OK).with(auctionClosedLens of auctionResultFor)
                     is AuctionInProgress -> Response(OK).with(auctionInProgressLens of auctionResultFor)
@@ -81,6 +89,22 @@ fun auctionApp(auctionHub: AuctionHub): RoutingHttpHandler {
     )
 }
 
+private fun List<Auction>.toDto() = map {
+    AuctionDto(
+        it.auctionId,
+        it.productId,
+        it.minimumSellingPrice,
+        it.state
+    )
+}
+
+data class AuctionDto(
+    val auctionId: AuctionId,
+    val productId: ProductId,
+    val minimumSellingPrice: Money,
+    val state: AuctionState = closed
+)
+
 val auctionClosedLens = Body.auto<AuctionClosed>().toLens()
 val auctionInProgressLens = Body.auto<AuctionInProgress>().toLens()
 val auctionIdLens = Body.auto<AuctionId>().toLens()
@@ -88,9 +112,9 @@ val listProductsLens = Body.auto<List<Product>>().toLens()
 val productIdLens = Body.auto<ProductId>().toLens()
 
 private data class Bid(val auctionId: AuctionId, val price: Money)
-private class AuctionResult {
+private class AuctionResultDto {
     companion object {
-        val lens = Body.auto<List<Auction>>().toLens()
+        val lens = Body.auto<List<AuctionDto>>().toLens()
     }
 
 }
