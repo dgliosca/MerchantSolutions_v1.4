@@ -1,7 +1,6 @@
 package com.merchantsolutions
 
 import com.merchantsolutions.SellerActor.Product
-import com.merchantsolutions.adapters.users.InMemoryUsers
 import com.merchantsolutions.application.AuctionHub
 import com.merchantsolutions.domain.AuctionId
 import com.merchantsolutions.domain.Money
