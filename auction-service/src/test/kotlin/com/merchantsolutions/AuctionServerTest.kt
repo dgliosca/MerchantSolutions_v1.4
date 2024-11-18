@@ -30,15 +30,16 @@ import org.http4k.core.Status.Companion.NOT_FOUND
 class AuctionServerTest {
     private val auctionHub = AuctionHub(InMemoryUsers(), InMemoryAuctions(testing), InMemoryProducts(testing))
     private val auctionServer = auctionApp(auctionHub)
-    private val buyerOne = BuyerActor(auctionServer)
+
+    private val buyerOneId = UserId.of("00000000-0000-0000-0000-000000000001")
+    private val buyerOne = BuyerActor(auctionServer, "00000000-0000-0000-0000-000000000001")
+
     private val buyerOneAuthenticated = buyerOne.authenticated()
-
     private val buyerTwo = BuyerActor(auctionServer, "00000000-0000-0000-0000-000000000002")
-    private val buyerTwoAuthenticated = buyerTwo.authenticated()
 
+    private val buyerTwoAuthenticated = buyerTwo.authenticated()
     private val sellerAuthenticated = SellerActor(auctionServer)
     private val backOffice = BackOfficeActor(auctionServer)
-    private val userIdOne = UserId.of("00000000-0000-0000-0000-000000000001")
 
     @Test
     fun `seller can register a new product`() {
@@ -113,7 +114,7 @@ class AuctionServerTest {
         val response = buyerOneAuthenticated.auctionResult(auctionId)
         assertThat(response.json<AuctionClosed>(), equalTo(
                 AuctionClosed(
-                    userIdOne,
+                    buyerOneId,
                     Money(gbp, BigDecimal("12.13"))
                 )
             )
@@ -157,7 +158,7 @@ class AuctionServerTest {
         assertThat(
             actual.json<AuctionClosed>(), equalTo(
                 AuctionClosed(
-                    userIdOne,
+                    buyerOneId,
                     Money(gbp, BigDecimal("11.00"))
                 )
             )
@@ -197,7 +198,29 @@ class AuctionServerTest {
         assertThat(
             actual.json<AuctionClosed>(), equalTo(
                 AuctionClosed(
-                    userIdOne,
+                    buyerOneId,
+                    Money(gbp, BigDecimal("12.00"))
+                )
+            )
+        )
+    }
+
+    @Test
+    fun `highest bidder win`() {
+        val productId = sellerAuthenticated.registerProduct(Product("Antique Vase", Money(gbp, BigDecimal("10.00"))))
+        val auctionId = backOffice.createAuction(productId)
+        backOffice.startAuction(auctionId)
+
+        buyerOneAuthenticated.placeABid(auctionId, Money(gbp, BigDecimal("12.00")))
+        buyerTwoAuthenticated.placeABid(auctionId, Money(gbp, BigDecimal("11.00")))
+
+        backOffice.closeAuction(auctionId)
+
+        val actual = buyerOneAuthenticated.auctionResult(auctionId)
+        assertThat(
+            actual.json<AuctionClosed>(), equalTo(
+                AuctionClosed(
+                    buyerOneId,
                     Money(gbp, BigDecimal("12.00"))
                 )
             )
