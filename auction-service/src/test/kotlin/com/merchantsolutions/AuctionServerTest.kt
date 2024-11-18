@@ -25,23 +25,27 @@ import com.merchantsolutions.adapters.db.H2DB
 import com.merchantsolutions.adapters.db.H2Products
 import com.merchantsolutions.adapters.db.Storage
 import com.merchantsolutions.adapters.db.truncateTables
+import com.merchantsolutions.adapters.users.UsersClient
+import com.merchantsolutions.drivers.http.UserApi
 import com.natpryce.hamkrest.hasSize
 import org.http4k.core.Status.Companion.NOT_FOUND
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
+import org.http4k.core.Uri
 
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 class AuctionServerTest {
     private val storage: Storage = H2DB()
     private val products = H2Products(storage.statement, testing)
     private val auctions = H2Auctions(storage.statement, testing)
+    private val userService = UserApi()
 
     @BeforeEach
     fun beforeEach() {
         storage.truncateTables()
     }
 
-    private val auctionHub = AuctionHub(InMemoryUsers(), auctions, products)
+    private val auctionHub = AuctionHub(UsersClient(Uri.of("http://user-service"), userService), auctions, products)
     private val auctionServer = auctionApp(auctionHub)
 
     private val buyerOneId = UserId.of("00000000-0000-0000-0000-000000000001")
