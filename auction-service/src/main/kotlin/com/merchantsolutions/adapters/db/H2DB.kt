@@ -20,15 +20,18 @@ class H2DB() : Storage {
 
 fun setupDatabase(connection: Connection) {
     connection.createStatement().use { statement ->
-        statement.execute(
-            """
-            CREATE TABLE products (
-                id UUID PRIMARY KEY,
-                description VARCHAR(255),
-                minimum_selling_price  DECIMAL(10, 2),
-                currency VARCHAR(4)
-            )
-            """
-        )
+        statement.execute(productsTable())
+        statement.execute(auctionsTable())
     }
 }
+
+private fun productsTable(): String =
+    """CREATE TABLE products (
+        id UUID PRIMARY KEY,
+        description VARCHAR(255),
+        minimum_selling_price  DECIMAL(10, 2),
+        currency VARCHAR(4)
+       )"""
+
+private fun auctionsTable(): String =
+    """CREATE TABLE auctions (id UUID PRIMARY KEY, product_id UUID, state VARCHAR(100))"""
