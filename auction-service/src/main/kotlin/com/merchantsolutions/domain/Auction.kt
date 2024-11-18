@@ -4,7 +4,6 @@ import com.merchantsolutions.domain.AuctionState.closed
 
 data class Auction(
     val auctionId: AuctionId,
-    val productId: ProductId,
     val minimumSellingPrice: Money,
     val state: AuctionState = closed
 )

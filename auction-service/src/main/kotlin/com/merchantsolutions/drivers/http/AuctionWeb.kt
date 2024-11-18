@@ -5,7 +5,6 @@ import com.merchantsolutions.AuctionJson.json
 import com.merchantsolutions.application.AuctionHub
 import com.merchantsolutions.domain.Auction
 import com.merchantsolutions.domain.AuctionId
-import com.merchantsolutions.domain.AuctionResult
 import com.merchantsolutions.domain.AuctionResult.AuctionClosed
 import com.merchantsolutions.domain.AuctionResult.AuctionInProgress
 import com.merchantsolutions.domain.AuctionResult.AuctionNotFound
@@ -92,7 +91,6 @@ fun auctionApp(auctionHub: AuctionHub): RoutingHttpHandler {
 private fun List<Auction>.toDto() = map {
     AuctionDto(
         it.auctionId,
-        it.productId,
         it.minimumSellingPrice,
         it.state
     )
@@ -100,7 +98,6 @@ private fun List<Auction>.toDto() = map {
 
 data class AuctionDto(
     val auctionId: AuctionId,
-    val productId: ProductId,
     val minimumSellingPrice: Money,
     val state: AuctionState = closed
 )

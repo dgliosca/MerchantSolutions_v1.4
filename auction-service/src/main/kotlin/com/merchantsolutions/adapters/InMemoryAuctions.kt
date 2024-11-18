@@ -20,7 +20,7 @@ class InMemoryAuctions(val idGenerator: IdGenerator) : Auctions {
 
     override fun createAuction(productId: ProductId, minimumSellingPrice: Money) : AuctionId{
         val auctionId = AuctionId(idGenerator())
-        auctions.add(Auction(auctionId, productId, minimumSellingPrice))
+        auctions.add(Auction(auctionId, minimumSellingPrice))
         return auctionId
     }
 

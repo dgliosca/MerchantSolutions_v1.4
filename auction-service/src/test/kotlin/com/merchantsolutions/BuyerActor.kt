@@ -34,12 +34,8 @@ class BuyerActor(val httpHandler: HttpHandler, val authToken: String = "00000000
     private val auctionIdLens = Body.auto<AuctionId>().toLens()
 }
 
-
 data class AuctionClosed(val userId: UserId, val winningBid: Money)
-object AuctionInProgress
-object AuctionNotFound
-
-data class Auction(val auctionId: AuctionId, val productId: ProductId, val minimumSellingPrice: Money, val state: State)
+data class Auction(val auctionId: AuctionId, val minimumSellingPrice: Money, val state: State)
 data class Bid(val auctionId: AuctionId, val price: Money)
 enum class State {
     opened, closed
