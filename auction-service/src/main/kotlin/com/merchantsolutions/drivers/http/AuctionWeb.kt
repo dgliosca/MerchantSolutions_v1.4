@@ -91,14 +91,12 @@ fun auctionApp(auctionHub: AuctionHub): RoutingHttpHandler {
 private fun List<Auction>.toDto() = map {
     AuctionDto(
         it.auctionId,
-        it.product.minimumSellingPrice,
         it.state
     )
 }
 
 data class AuctionDto(
     val auctionId: AuctionId,
-    val minimumSellingPrice: Money,
     val state: AuctionState = closed
 )
 
