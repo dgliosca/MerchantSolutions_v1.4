@@ -22,11 +22,14 @@ import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import java.util.UUID
 import com.merchantsolutions.AuctionJson.json
+import com.merchantsolutions.adapters.db.H2DB
+import com.merchantsolutions.adapters.db.Storage
 import org.http4k.core.Status.Companion.NOT_FOUND
 
 class AuctionServerTest {
-
-    private val auctionServer = auctionApp(AuctionHub(InMemoryUsers(), InMemoryAuctions(testing), InMemoryProducts(testing)))
+    private val storage: Storage = H2DB()
+    val auctionHub = AuctionHub(InMemoryUsers(), InMemoryAuctions(testing), InMemoryProducts(testing))
+    private val auctionServer = auctionApp(auctionHub)
     private val buyerOne = BuyerActor(auctionServer)
     private val buyerOneAuthenticated = buyerOne.authenticated()
 
