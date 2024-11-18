@@ -32,7 +32,7 @@ class InMemoryAuctions(val idGenerator: IdGenerator) : Auctions {
         return auctions.filter { it.state == opened }
     }
 
-    override fun createAuction(bid: BidWithUser) {
+    override fun addBid(bid: BidWithUser) {
         if (getAuction(bid.auctionId) != null)
             bids.add(bid)
     }

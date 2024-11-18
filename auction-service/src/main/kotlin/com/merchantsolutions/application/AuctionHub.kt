@@ -56,7 +56,7 @@ class AuctionHub(val users: Users, val auctions: Auctions, val products: Product
         return if (bid.price < auction.product.minimumSellingPrice) {
             false
         } else {
-            auctions.createAuction(bid)
+            auctions.addBid(bid)
             true
         }
     }

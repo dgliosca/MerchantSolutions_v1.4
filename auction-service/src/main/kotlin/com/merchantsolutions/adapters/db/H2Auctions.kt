@@ -63,7 +63,7 @@ class H2Auctions(val statement: Statement, val idGenerator: IdGenerator) : Aucti
         return auctionId
     }
 
-    override fun createAuction(bid: BidWithUser) {
+    override fun addBid(bid: BidWithUser) {
         TODO("Not yet implemented")
     }
 

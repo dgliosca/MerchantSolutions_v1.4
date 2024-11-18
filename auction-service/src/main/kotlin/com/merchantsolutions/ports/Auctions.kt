@@ -8,7 +8,7 @@ import com.merchantsolutions.domain.Product
 interface Auctions {
     fun getAuction(auctionId: AuctionId): Auction?
     fun createAuction(productId: Product) : AuctionId
-    fun createAuction(bid: BidWithUser)
+    fun addBid(bid: BidWithUser)
     fun remove(auction: Auction)
     fun openedAuctions(): List<Auction>
     fun winningBid(id: AuctionId) : BidWithUser
