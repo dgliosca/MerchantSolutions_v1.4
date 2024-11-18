@@ -91,7 +91,7 @@ fun auctionApp(auctionHub: AuctionHub): RoutingHttpHandler {
 private fun List<Auction>.toDto() = map {
     AuctionDto(
         it.auctionId,
-        it.minimumSellingPrice,
+        it.product.minimumSellingPrice,
         it.state
     )
 }

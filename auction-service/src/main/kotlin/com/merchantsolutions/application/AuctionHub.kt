@@ -46,14 +46,14 @@ class AuctionHub(val users: Users, val auctions: Auctions, val products: Product
         val product = products.get(productId)
         if (product == null) throw IllegalStateException("Auction cannot be crated because product doesn't exist with id: $productId")
 
-        val auctionId = auctions.createAuction(product, product.minimumSellingPrice)
+        val auctionId = auctions.createAuction(product)
         return auctionId
     }
 
     fun add(bid: BidWithUser): Boolean {
         val auction = auctions.getAuction(bid.auctionId) ?: return false
 
-        return if (bid.price < auction.minimumSellingPrice) {
+        return if (bid.price < auction.product.minimumSellingPrice) {
             false
         } else {
             auctions.createAuction(bid)
