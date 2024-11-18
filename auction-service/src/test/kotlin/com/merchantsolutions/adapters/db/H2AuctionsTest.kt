@@ -47,4 +47,9 @@ class H2AuctionsTest {
             equalTo(Auction(auctionId, Product(productId, "Candle Sticks", Money(gbp, BigDecimal("12.12"))), closed))
         )
     }
+
+    @Test
+    fun `xxx`() {
+
+    }
 }

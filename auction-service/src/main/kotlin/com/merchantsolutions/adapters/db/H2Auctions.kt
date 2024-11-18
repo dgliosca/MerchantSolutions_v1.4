@@ -67,10 +67,6 @@ class H2Auctions(val statement: Statement, val idGenerator: IdGenerator) : Aucti
         TODO("Not yet implemented")
     }
 
-    override fun remove(auction: Auction) {
-        TODO("Not yet implemented")
-    }
-
     override fun openedAuctions(): List<Auction> {
         TODO("Not yet implemented")
     }

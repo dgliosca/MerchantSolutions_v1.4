@@ -26,10 +26,6 @@ class InMemoryAuctions(val idGenerator: IdGenerator, val products: Products) : A
         return auctionId
     }
 
-    override fun remove(auction: Auction) {
-        auctions.remove(auction)
-    }
-
     override fun openedAuctions(): List<Auction> {
         return auctions.filter { it.state == opened }
     }

@@ -10,7 +10,6 @@ interface Auctions {
     fun getAuction(auctionId: AuctionId): Auction?
     fun createAuction(productId: ProductId) : AuctionId
     fun addBid(bid: BidWithUser)
-    fun remove(auction: Auction)
     fun openedAuctions(): List<Auction>
     fun winningBid(id: AuctionId) : BidWithUser
     fun openAuction(id: AuctionId): Boolean
