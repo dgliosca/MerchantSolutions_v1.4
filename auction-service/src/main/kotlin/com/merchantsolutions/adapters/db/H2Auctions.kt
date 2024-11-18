@@ -10,6 +10,7 @@ import com.merchantsolutions.domain.Product
 import com.merchantsolutions.domain.ProductId
 import com.merchantsolutions.domain.UserId
 import com.merchantsolutions.ports.Auctions
+import java.sql.ResultSet
 import java.sql.Statement
 import java.util.Currency
 import java.util.UUID
@@ -31,18 +32,7 @@ class H2Auctions(val statement: Statement, val idGenerator: IdGenerator) : Aucti
                 a.id = '${auctionId.value}';"""
         val rs = statement.executeQuery(selectSQL)
         return if (rs.next()) {
-            val auctionId = AuctionId(UUID.fromString(rs.getString("id")))
-            val productId = ProductId(UUID.fromString(rs.getString("id")))
-            val description = rs.getString("description")
-            val monetaryAmount = rs.getBigDecimal("minimum_selling_price")
-            val currency = Currency.getInstance(rs.getString("currency"))
-            Product(productId, description, Money(currency, monetaryAmount))
-            val state = rs.getString("state")
-            Auction(
-                auctionId,
-                Product(productId, description, Money(currency, monetaryAmount)),
-                AuctionState.valueOf(state)
-            )
+            rs.toAuction()
         } else null
     }
 
@@ -72,11 +62,29 @@ class H2Auctions(val statement: Statement, val idGenerator: IdGenerator) : Aucti
     }
 
     override fun openedAuctions(): List<Auction> {
-        TODO("Not yet implemented")
+        val auctions = mutableListOf<Auction>()
+        val selectSQL =
+            """SELECT
+                a.id AS auction_id,
+                a.state,
+                p.id AS product_id,
+                p.description,
+                p.minimum_selling_price,
+                p.currency
+            FROM
+                auctions a
+            JOIN products p ON a.product_id = p.id
+            WHERE a.state = 'opened';"""
+        val rs = statement.executeQuery(selectSQL)
+        while (rs.next()) {
+            auctions.add(rs.toAuction())
+        }
+        return auctions
     }
 
     override fun winningBid(id: AuctionId): BidWithUser? {
-        val rs = statement.executeQuery("""SELECT *
+        val rs = statement.executeQuery(
+            """SELECT *
             FROM bids
             WHERE amount = (SELECT MAX(amount) FROM bids)
             ORDER BY id DESC
@@ -93,14 +101,27 @@ class H2Auctions(val statement: Statement, val idGenerator: IdGenerator) : Aucti
                 Money(currency, monetaryAmount)
             )
         } else null
-
     }
 
-    override fun openAuction(id: AuctionId): Boolean {
-        TODO("Not yet implemented")
-    }
+    override fun openAuction(id: AuctionId): Boolean =
+        statement.execute("""UPDATE auctions SET state = 'opened' WHERE id = '${id.value}';""")
 
     override fun closeAuction(id: AuctionId): Boolean {
         TODO("Not yet implemented")
     }
+}
+
+private fun ResultSet.toAuction(): Auction {
+    val auctionId = AuctionId(UUID.fromString(getString("id")))
+    val productId = ProductId(UUID.fromString(getString("id")))
+    val description = getString("description")
+    val monetaryAmount = getBigDecimal("minimum_selling_price")
+    val currency = Currency.getInstance(getString("currency"))
+    Product(productId, description, Money(currency, monetaryAmount))
+    val state = getString("state")
+    return Auction(
+        auctionId,
+        Product(productId, description, Money(currency, monetaryAmount)),
+        AuctionState.valueOf(state)
+    )
 }

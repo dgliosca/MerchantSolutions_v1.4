@@ -11,6 +11,7 @@ import com.merchantsolutions.domain.UserId
 import com.merchantsolutions.testing
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
+import com.natpryce.hamkrest.hasSize
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -73,5 +74,25 @@ class H2AuctionsTest {
             actual,
             equalTo(BidWithUser(auctionId, UserId(userIdTwo), Money(gbp, BigDecimal("3.00"))))
         )
+    }
+
+    @Test
+    fun `get all opened auctions`() {
+        auctions.openAuction(
+            auctions.createAuction(
+                products.add(ProductToRegister("Candle Sticks", Money(gbp, BigDecimal("10.12"))))
+            )
+        )
+        auctions.openAuction(
+            auctions.createAuction(
+                products.add(ProductToRegister("Antique Vase", Money(gbp, BigDecimal("11.12"))))
+            )
+        )
+        auctions.openAuction(
+            auctions.createAuction(
+                products.add(ProductToRegister("Lost Ark", Money(gbp, BigDecimal("13.12"))))
+            )
+        )
+        assertThat(auctions.openedAuctions(), hasSize(equalTo(3)))
     }
 }
