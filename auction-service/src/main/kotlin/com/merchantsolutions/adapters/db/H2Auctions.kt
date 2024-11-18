@@ -8,6 +8,7 @@ import com.merchantsolutions.domain.IdGenerator
 import com.merchantsolutions.domain.Money
 import com.merchantsolutions.domain.Product
 import com.merchantsolutions.domain.ProductId
+import com.merchantsolutions.domain.UserId
 import com.merchantsolutions.ports.Auctions
 import java.sql.Statement
 import java.util.Currency
@@ -64,15 +65,35 @@ class H2Auctions(val statement: Statement, val idGenerator: IdGenerator) : Aucti
     }
 
     override fun addBid(bid: BidWithUser) {
-        TODO("Not yet implemented")
+        statement.executeUpdate(
+            "INSERT INTO bids (user_id, auction_id, amount, currency)\n" +
+                    "VALUES ('${bid.userId.value}', '${bid.auctionId.value}', ${bid.price.amount}, '${bid.price.currency}');"
+        )
     }
 
     override fun openedAuctions(): List<Auction> {
         TODO("Not yet implemented")
     }
 
-    override fun winningBid(id: AuctionId): BidWithUser {
-        TODO("Not yet implemented")
+    override fun winningBid(id: AuctionId): BidWithUser? {
+        val rs = statement.executeQuery("""SELECT *
+            FROM bids
+            WHERE amount = (SELECT MAX(amount) FROM bids)
+            ORDER BY id DESC
+            LIMIT 1;"""
+        )
+        return if (rs.next()) {
+            val auctionId = AuctionId(UUID.fromString(rs.getString("auction_id")))
+            val userId = UserId(UUID.fromString(rs.getString("user_id")))
+            val monetaryAmount = rs.getBigDecimal("amount")
+            val currency = Currency.getInstance(rs.getString("currency"))
+            BidWithUser(
+                auctionId,
+                userId,
+                Money(currency, monetaryAmount)
+            )
+        } else null
+
     }
 
     override fun openAuction(id: AuctionId): Boolean {

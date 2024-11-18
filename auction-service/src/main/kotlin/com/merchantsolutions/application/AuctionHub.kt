@@ -3,6 +3,7 @@ package com.merchantsolutions.application
 import com.merchantsolutions.domain.Auction
 import com.merchantsolutions.domain.AuctionId
 import com.merchantsolutions.domain.AuctionResult
+import com.merchantsolutions.domain.AuctionResult.AuctionClosedNoWinner
 import com.merchantsolutions.domain.AuctionState.closed
 import com.merchantsolutions.domain.AuctionState.opened
 import com.merchantsolutions.domain.BidWithUser
@@ -36,7 +37,7 @@ class AuctionHub(val users: Users, val auctions: Auctions, val products: Product
         return when (auction.state) {
             opened -> AuctionResult.AuctionInProgress
             closed -> {
-                val winningBid = auctions.winningBid(auctionId)
+                val winningBid = auctions.winningBid(auctionId)?: return AuctionClosedNoWinner
                 AuctionResult.AuctionClosed(winningBid.userId, winningBid.price)
             }
         }

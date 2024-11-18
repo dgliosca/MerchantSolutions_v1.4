@@ -2,10 +2,12 @@ package com.merchantsolutions.adapters.db
 
 import com.merchantsolutions.domain.Auction
 import com.merchantsolutions.domain.AuctionState.closed
+import com.merchantsolutions.domain.BidWithUser
 import com.merchantsolutions.domain.Money
 import com.merchantsolutions.domain.Money.Companion.gbp
 import com.merchantsolutions.domain.Product
 import com.merchantsolutions.domain.ProductToRegister
+import com.merchantsolutions.domain.UserId
 import com.merchantsolutions.testing
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
@@ -14,6 +16,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import java.math.BigDecimal
+import java.util.UUID
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class H2AuctionsTest {
@@ -23,7 +26,7 @@ class H2AuctionsTest {
 
     @BeforeEach
     fun beforeEach() {
-        storage.statement.execute("TRUNCATE TABLE AUCTIONS")
+        storage.truncateTables()
     }
 
     @AfterAll
@@ -49,7 +52,26 @@ class H2AuctionsTest {
     }
 
     @Test
-    fun `xxx`() {
+    fun `get winning bid`() {
+        val productId = products.add(
+            ProductToRegister(
+                "Candle Sticks",
+                Money(gbp, BigDecimal("12.12"))
+            )
+        )
+        val auctionId = auctions.createAuction(productId)
+        val userIdOne = UUID.fromString("00000000-0000-0000-0000-000000000000")
+        val userIdTwo = UUID.fromString("00000000-0000-0000-0000-000000000001")
+        auctions.addBid(BidWithUser(auctionId, UserId(userIdTwo), Money(gbp, BigDecimal("1.00"))))
+        auctions.addBid(BidWithUser(auctionId, UserId(userIdOne), Money(gbp, BigDecimal("2.00"))))
+        auctions.addBid(BidWithUser(auctionId, UserId(userIdTwo), Money(gbp, BigDecimal("3.00"))))
+        auctions.addBid(BidWithUser(auctionId, UserId(userIdOne), Money(gbp, BigDecimal("2.50"))))
 
+        val actual = auctions.winningBid(auctionId)
+        println("actual = ${actual}")
+        assertThat(
+            actual,
+            equalTo(BidWithUser(auctionId, UserId(userIdTwo), Money(gbp, BigDecimal("3.00"))))
+        )
     }
 }

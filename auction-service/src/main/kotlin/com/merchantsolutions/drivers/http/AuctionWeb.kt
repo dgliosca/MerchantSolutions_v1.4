@@ -5,6 +5,7 @@ import com.merchantsolutions.AuctionJson.json
 import com.merchantsolutions.application.AuctionHub
 import com.merchantsolutions.domain.Auction
 import com.merchantsolutions.domain.AuctionId
+import com.merchantsolutions.domain.AuctionResult
 import com.merchantsolutions.domain.AuctionResult.AuctionClosed
 import com.merchantsolutions.domain.AuctionResult.AuctionInProgress
 import com.merchantsolutions.domain.AuctionResult.AuctionNotFound
@@ -68,12 +69,11 @@ fun auctionApp(auctionHub: AuctionHub): RoutingHttpHandler {
             },
             "/auction-result" bind GET to { request ->
                 val auctionId = request.json<AuctionId>()
-                val auctionResultFor: com.merchantsolutions.domain.AuctionResult =
-                    auctionHub.auctionResultFor(auctionId)
+                val auctionResultFor = auctionHub.auctionResultFor(auctionId)
                 when (auctionResultFor) {
                     is AuctionClosed -> Response(OK).with(auctionClosedLens of auctionResultFor)
                     is AuctionInProgress -> Response(OK).with(auctionInProgressLens of auctionResultFor)
-                    is AuctionNotFound -> Response(NOT_FOUND)
+                    is AuctionNotFound, AuctionResult.AuctionClosedNoWinner -> Response(NOT_FOUND)
                 }
             }, "/bid" bind POST to early@{ request ->
                 val token = request.bearerToken() ?: return@early Response(FORBIDDEN)

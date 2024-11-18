@@ -22,6 +22,7 @@ fun setupDatabase(connection: Connection) {
     connection.createStatement().use { statement ->
         statement.execute(productsTable())
         statement.execute(auctionsTable())
+        statement.execute(bidsTable())
     }
 }
 
@@ -35,3 +36,12 @@ private fun productsTable(): String =
 
 private fun auctionsTable(): String =
     """CREATE TABLE IF NOT EXISTS auctions (id UUID PRIMARY KEY, product_id UUID, state VARCHAR(100))"""
+
+private fun bidsTable(): String =
+    """CREATE TABLE IF NOT EXISTS bids (
+    id IDENTITY PRIMARY KEY,
+    user_id UUID,
+    auction_id UUID,
+    amount DECIMAL(10, 2),
+    currency VARCHAR(4)
+);"""

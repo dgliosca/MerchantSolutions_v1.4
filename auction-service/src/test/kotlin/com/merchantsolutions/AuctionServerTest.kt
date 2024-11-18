@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import java.util.UUID
 import com.merchantsolutions.AuctionJson.json
+import com.merchantsolutions.domain.AuctionResult
 import com.natpryce.hamkrest.hasSize
 import org.http4k.core.Status.Companion.NOT_FOUND
 
@@ -226,5 +227,18 @@ class AuctionServerTest {
                 )
             )
         )
+    }
+
+    @Test
+    fun `there is no winning bid`() {
+        val productId = sellerAuthenticated.registerProduct(Product("Antique Vase", Money(gbp, BigDecimal("10.00"))))
+        val auctionId = backOffice.createAuction(productId)
+        backOffice.startAuction(auctionId)
+
+        backOffice.closeAuction(auctionId)
+
+        val actual = buyerOneAuthenticated.auctionResult(auctionId)
+
+        assertThat(actual.status, equalTo(NOT_FOUND))
     }
 }

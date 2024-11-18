@@ -22,7 +22,7 @@ class H2ProductsTest {
 
     @BeforeEach
     fun beforeEach() {
-        storage.statement.execute("TRUNCATE TABLE PRODUCTS")
+        storage.truncateTables()
     }
 
     @AfterAll
