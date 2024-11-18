@@ -1,0 +1,31 @@
+Requirements
+Your business sponsor has asked you to create a prototype of a platform for running blind
+auctions (https://en.wikipedia.org/wiki/First-price_sealed-bid_auction)
+
+Buyers are shown products that they can bid for, with the minimum price set by the seller.
+The buyer can submit any number of bids, which will be rejected if they fall below the
+seller's minimum price. At the end of the auction, the buyer who first bid the highest
+amount will win the auction and purchase the product.
+
+• For this exercise, products can be described by a single plain text property.
+To comply with regulations, we store Personal Identifiable Information (PII) in a separate
+“Users” server. The Users server generates opaque tokens to represent users, and only
+exposes PII for a user token to authorised callers. The Auction service must follow this
+principal: it must identify sellers and buyers by token and call the Users server to validate
+these tokens when processing requests.
+
+• For this exercise, implement enough of the Users server to perform this validation.
+Assume another part of the system allows users to manage their personal
+information stored by the Users server. It is acceptable to pre-populate the Users
+server with canned data.
+The Auctions service will be invoked by Backend for Frontend (BFF) services that
+authenticate users and mediate between the front-end used by the end user and our
+business services. These are out of scope for this exercise. Focus on the Auction and User
+services. You do not need to build any front-end components. You can assume that calls
+from the BFF to the Auction service will pass tokens to identify sellers and buyers.
+
+Use-Cases
+• Register a new product for auction by a seller and specify a minimum bid
+• List the auctions in which it is possible to bid
+• Register a buyer’s bid in an auction any number of times
+• End the action and return the winning bid
