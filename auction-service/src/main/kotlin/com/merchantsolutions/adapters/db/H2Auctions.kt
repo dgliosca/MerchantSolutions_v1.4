@@ -88,7 +88,7 @@ class H2Auctions(val statement: Statement, val idGenerator: IdGenerator) : Aucti
             """SELECT *
             FROM bids
             WHERE amount = (SELECT MAX(amount) FROM bids)
-            ORDER BY id DESC
+            ORDER BY id ASC
             LIMIT 1;"""
         )
         return if (rs.next()) {
