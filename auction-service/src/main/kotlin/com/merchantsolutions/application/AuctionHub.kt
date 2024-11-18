@@ -46,7 +46,7 @@ class AuctionHub(val users: Users, val auctions: Auctions, val products: Product
         val product = products.get(productId)
         if (product == null) throw IllegalStateException("Auction cannot be crated because product doesn't exist with id: $productId")
 
-        val auctionId = auctions.createAuction(product)
+        val auctionId = auctions.createAuction(product.productId)
         return auctionId
     }
 

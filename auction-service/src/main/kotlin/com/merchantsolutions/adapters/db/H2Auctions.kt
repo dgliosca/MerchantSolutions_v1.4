@@ -46,19 +46,19 @@ class H2Auctions(val statement: Statement, val idGenerator: IdGenerator) : Aucti
     }
 
     override fun createAuction(
-        product: Product
+        productId: ProductId
     ): AuctionId {
-        val selectSQL = "SELECT * FROM products WHERE id = '${product.productId.value}'";
+        val selectSQL = "SELECT * FROM products WHERE id = '${productId.value}'";
         val rs = statement.executeQuery(selectSQL)
         if (rs.next() == false) {
-            throw IllegalStateException("Product does not exist with id: ${product.productId.value}")
+            throw IllegalStateException("Product does not exist with id: ${productId.value}")
         }
         val auctionId = AuctionId(idGenerator())
         val result = statement.executeUpdate(
-            "INSERT INTO auctions (id, product_id, state) VALUES ('${auctionId.value}', '${product.productId.value}', '${AuctionState.closed.name}');"
+            "INSERT INTO auctions (id, product_id, state) VALUES ('${auctionId.value}', '${productId.value}', '${AuctionState.closed.name}');"
         )
         if (result != 1) {
-            throw IllegalStateException("Couldn't create auction for product id: ${product.productId.value}")
+            throw IllegalStateException("Couldn't create auction for product id: ${productId.value}")
         }
         return auctionId
     }

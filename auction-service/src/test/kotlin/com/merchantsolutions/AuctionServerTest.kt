@@ -22,13 +22,12 @@ import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import java.util.UUID
 import com.merchantsolutions.AuctionJson.json
-import com.merchantsolutions.adapters.db.H2DB
-import com.merchantsolutions.adapters.db.Storage
 import com.natpryce.hamkrest.hasSize
 import org.http4k.core.Status.Companion.NOT_FOUND
 
 class AuctionServerTest {
-    private val auctionHub = AuctionHub(InMemoryUsers(), InMemoryAuctions(testing), InMemoryProducts(testing))
+    private val products = InMemoryProducts(testing)
+    private val auctionHub = AuctionHub(InMemoryUsers(), InMemoryAuctions(testing, products), products)
     private val auctionServer = auctionApp(auctionHub)
 
     private val buyerOneId = UserId.of("00000000-0000-0000-0000-000000000001")
@@ -58,7 +57,8 @@ class AuctionServerTest {
     fun `list the auctions in which it is possible to bid`() {
         val productOne = sellerAuthenticated.registerProduct(Product("Candle Sticks", Money(gbp, BigDecimal("12.13"))))
         val productTwo = sellerAuthenticated.registerProduct(Product("Antique Vase", Money(gbp, BigDecimal("1.13"))))
-        val productThree = sellerAuthenticated.registerProduct(Product("Napolean Chair", Money(gbp, BigDecimal("10.13"))))
+        val productThree =
+            sellerAuthenticated.registerProduct(Product("Napolean Chair", Money(gbp, BigDecimal("10.13"))))
 
         backOffice.createAuction(productOne)
         openAuctionFor(productTwo)
@@ -112,7 +112,8 @@ class AuctionServerTest {
         backOffice.closeAuction(auctionId)
 
         val response = buyerOneAuthenticated.auctionResult(auctionId)
-        assertThat(response.json<AuctionClosed>(), equalTo(
+        assertThat(
+            response.json<AuctionClosed>(), equalTo(
                 AuctionClosed(
                     buyerOneId,
                     Money(gbp, BigDecimal("12.13"))

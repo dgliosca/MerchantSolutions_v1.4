@@ -9,13 +9,13 @@ import com.merchantsolutions.domain.ProductToRegister
 import com.merchantsolutions.testing
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import java.math.BigDecimal
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-
 class H2AuctionsTest {
     private val storage: Storage = H2DB()
     private val auctions = H2Auctions(storage.statement, testing)
@@ -26,6 +26,11 @@ class H2AuctionsTest {
         storage.statement.execute("TRUNCATE TABLE AUCTIONS")
     }
 
+    @AfterAll
+    fun afterAll() {
+        storage.close()
+    }
+
     @Test
     fun `can create an auction`() {
         val productId = products.add(
@@ -34,17 +39,12 @@ class H2AuctionsTest {
                 Money(gbp, BigDecimal("12.12"))
             )
         )
-        val product = Product(
-            productId,
-            "Candle Sticks",
-            Money(gbp, BigDecimal("12.12"))
-        )
 
-        val auctionId = auctions.createAuction(product)
+        val auctionId = auctions.createAuction(productId)
 
         assertThat(
             auctions.getAuction(auctionId),
-            equalTo(Auction(auctionId, product, closed))
+            equalTo(Auction(auctionId, Product(productId, "Candle Sticks", Money(gbp, BigDecimal("12.12"))), closed))
         )
     }
 }

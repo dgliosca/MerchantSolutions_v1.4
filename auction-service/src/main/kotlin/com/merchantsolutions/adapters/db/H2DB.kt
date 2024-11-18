@@ -26,7 +26,7 @@ fun setupDatabase(connection: Connection) {
 }
 
 private fun productsTable(): String =
-    """CREATE TABLE products (
+    """CREATE TABLE IF NOT EXISTS products (
         id UUID PRIMARY KEY,
         description VARCHAR(255),
         minimum_selling_price  DECIMAL(10, 2),
@@ -34,4 +34,4 @@ private fun productsTable(): String =
        )"""
 
 private fun auctionsTable(): String =
-    """CREATE TABLE auctions (id UUID PRIMARY KEY, product_id UUID, state VARCHAR(100))"""
+    """CREATE TABLE IF NOT EXISTS auctions (id UUID PRIMARY KEY, product_id UUID, state VARCHAR(100))"""

@@ -7,9 +7,11 @@ import com.merchantsolutions.domain.AuctionState.opened
 import com.merchantsolutions.domain.BidWithUser
 import com.merchantsolutions.domain.IdGenerator
 import com.merchantsolutions.domain.Product
+import com.merchantsolutions.domain.ProductId
 import com.merchantsolutions.ports.Auctions
+import com.merchantsolutions.ports.Products
 
-class InMemoryAuctions(val idGenerator: IdGenerator) : Auctions {
+class InMemoryAuctions(val idGenerator: IdGenerator, val products: Products) : Auctions {
     private val auctions = mutableListOf<Auction>()
     private val bids = mutableListOf<BidWithUser>()
 
@@ -17,9 +19,9 @@ class InMemoryAuctions(val idGenerator: IdGenerator) : Auctions {
         return auctions.find { it.auctionId == auctionId }
     }
 
-    override fun createAuction(product: Product) : AuctionId{
+    override fun createAuction(productId: ProductId): AuctionId {
         val auctionId = AuctionId(idGenerator())
-
+        val product = products.get(productId)?: throw IllegalStateException("Cannot create auction for product: ${productId.value}")
         auctions.add(Auction(auctionId, product))
         return auctionId
     }

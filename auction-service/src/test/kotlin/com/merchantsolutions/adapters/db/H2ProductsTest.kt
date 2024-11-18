@@ -9,6 +9,7 @@ import com.merchantsolutions.testing
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.hasSize
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -22,6 +23,11 @@ class H2ProductsTest {
     @BeforeEach
     fun beforeEach() {
         storage.statement.execute("TRUNCATE TABLE PRODUCTS")
+    }
+
+    @AfterAll
+    fun afterAll() {
+        storage.close()
     }
 
     @Test
