@@ -1,4 +1,4 @@
-package com.merchantsolutions.adapters
+package com.merchantsolutions.adapters.db
 
 import com.merchantsolutions.domain.Auction
 import com.merchantsolutions.domain.AuctionId
@@ -6,7 +6,6 @@ import com.merchantsolutions.domain.AuctionState.closed
 import com.merchantsolutions.domain.AuctionState.opened
 import com.merchantsolutions.domain.BidWithUser
 import com.merchantsolutions.domain.IdGenerator
-import com.merchantsolutions.domain.Product
 import com.merchantsolutions.domain.ProductId
 import com.merchantsolutions.ports.Auctions
 import com.merchantsolutions.ports.Products

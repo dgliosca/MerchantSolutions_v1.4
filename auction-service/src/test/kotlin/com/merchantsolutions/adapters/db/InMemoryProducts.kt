@@ -1,4 +1,4 @@
-package com.merchantsolutions.adapters
+package com.merchantsolutions.adapters.db
 
 import com.merchantsolutions.domain.IdGenerator
 import com.merchantsolutions.domain.Product

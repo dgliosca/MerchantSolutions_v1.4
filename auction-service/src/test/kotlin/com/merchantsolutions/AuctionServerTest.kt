@@ -1,8 +1,6 @@
 package com.merchantsolutions
 
 import com.merchantsolutions.SellerActor.Product
-import com.merchantsolutions.adapters.InMemoryAuctions
-import com.merchantsolutions.adapters.InMemoryProducts
 import com.merchantsolutions.adapters.users.InMemoryUsers
 import com.merchantsolutions.application.AuctionHub
 import com.merchantsolutions.domain.AuctionId
@@ -27,10 +25,8 @@ import com.merchantsolutions.adapters.db.H2DB
 import com.merchantsolutions.adapters.db.H2Products
 import com.merchantsolutions.adapters.db.Storage
 import com.merchantsolutions.adapters.db.truncateTables
-import com.merchantsolutions.domain.AuctionResult
 import com.natpryce.hamkrest.hasSize
 import org.http4k.core.Status.Companion.NOT_FOUND
-import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
 
