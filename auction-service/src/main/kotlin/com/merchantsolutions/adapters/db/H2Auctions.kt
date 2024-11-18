@@ -16,6 +16,7 @@ import java.util.Currency
 import java.util.UUID
 
 class H2Auctions(val statement: Statement, val idGenerator: IdGenerator) : Auctions {
+
     override fun getAuction(auctionId: AuctionId): Auction? {
         val selectSQL =
             """SELECT
@@ -103,11 +104,14 @@ class H2Auctions(val statement: Statement, val idGenerator: IdGenerator) : Aucti
         } else null
     }
 
-    override fun openAuction(id: AuctionId): Boolean =
-        statement.execute("""UPDATE auctions SET state = 'opened' WHERE id = '${id.value}';""")
+    override fun openAuction(id: AuctionId): Boolean {
+        val result = statement.executeUpdate("""UPDATE auctions SET state = 'opened' WHERE id = '${id.value}';""")
+        return result == 1
+    }
 
     override fun closeAuction(id: AuctionId): Boolean {
-        TODO("Not yet implemented")
+        val result = statement.executeUpdate("""UPDATE auctions SET state = 'closed' WHERE id = '${id.value}';""")
+        return result == 1
     }
 }
 

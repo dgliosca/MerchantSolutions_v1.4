@@ -95,4 +95,15 @@ class H2AuctionsTest {
         )
         assertThat(auctions.openedAuctions(), hasSize(equalTo(3)))
     }
+
+    @Test
+    fun `can close an auction`() {
+        val auctionId = auctions.createAuction(
+            products.add(ProductToRegister("Candle Sticks", Money(gbp, BigDecimal("10.12"))))
+        )
+        auctions.openAuction(
+            auctionId
+        )
+        assertThat(auctions.closeAuction(auctionId), equalTo(true))
+    }
 }
