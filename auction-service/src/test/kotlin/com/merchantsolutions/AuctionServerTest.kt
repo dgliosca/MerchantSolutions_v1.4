@@ -170,4 +170,37 @@ class AuctionServerTest {
         val actual = buyerOneAuthenticated.auctionResult(auctionId)
         assertThat(actual.status, equalTo(NOT_FOUND))
     }
+
+    @Test
+    fun `buyer offer get rejected if below minimum price`() {
+        val productId = sellerAuthenticated.registerProduct(Product("Antique Vase", Money(gbp, BigDecimal("10.00"))))
+        val auctionId = backOffice.createAuction(productId)
+        backOffice.startAuction(auctionId)
+
+        val response = buyerOneAuthenticated.placeABid(auctionId, Money(gbp, BigDecimal("9.00")))
+
+        assertThat(response.status, equalTo(CONFLICT))
+    }
+
+    @Test
+    fun `buyer cannot offer a subsequent bid lower than the last one`() {
+        val productId = sellerAuthenticated.registerProduct(Product("Antique Vase", Money(gbp, BigDecimal("10.00"))))
+        val auctionId = backOffice.createAuction(productId)
+        backOffice.startAuction(auctionId)
+
+        buyerOneAuthenticated.placeABid(auctionId, Money(gbp, BigDecimal("12.00")))
+        buyerOneAuthenticated.placeABid(auctionId, Money(gbp, BigDecimal("11.00")))
+
+        backOffice.closeAuction(auctionId)
+
+        val actual = buyerOneAuthenticated.auctionResult(auctionId)
+        assertThat(
+            actual.json<AuctionClosed>(), equalTo(
+                AuctionClosed(
+                    userIdOne,
+                    Money(gbp, BigDecimal("12.00"))
+                )
+            )
+        )
+    }
 }
