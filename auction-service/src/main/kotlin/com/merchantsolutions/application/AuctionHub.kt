@@ -53,7 +53,8 @@ class AuctionHub(val users: Users, val auctions: Auctions, val products: Product
 
     fun add(bid: BidWithUser): Boolean {
         val auction = auctions.getAuction(bid.auctionId) ?: return false
-
+        if (auction.state == closed)
+            return false
         return if (bid.price < auction.product.minimumSellingPrice) {
             false
         } else {

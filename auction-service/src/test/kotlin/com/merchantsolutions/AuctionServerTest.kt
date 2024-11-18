@@ -241,4 +241,18 @@ class AuctionServerTest {
 
         assertThat(actual.status, equalTo(NOT_FOUND))
     }
+
+    @Test
+    fun `auction is closed no longer can bid`() {
+        val productId = sellerAuthenticated.registerProduct(Product("Antique Vase", Money(gbp, BigDecimal("10.00"))))
+        val auctionId = backOffice.createAuction(productId)
+        backOffice.startAuction(auctionId)
+
+        backOffice.closeAuction(auctionId)
+        buyerOneAuthenticated.placeABid(auctionId, Money(gbp, BigDecimal("11.00")))
+
+        val actual = buyerOneAuthenticated.auctionResult(auctionId)
+
+        assertThat(actual.status, equalTo(NOT_FOUND))
+    }
 }
