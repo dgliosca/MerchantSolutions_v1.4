@@ -12,12 +12,15 @@ import org.http4k.core.Response
 import org.http4k.core.Response.Companion.invoke
 import org.http4k.core.Status.Companion.NOT_FOUND
 import org.http4k.core.Status.Companion.OK
+import org.http4k.core.then
 import org.http4k.core.with
+import org.http4k.filter.ServerFilters
 import org.http4k.routing.RoutingHttpHandler
 import org.http4k.routing.bind
 import org.http4k.routing.routes
 
-fun UserApi() = userApp(UserHub(H2Users(H2UsersDatabase().statement)))
+fun UserApi() = ServerFilters.CatchAll()
+    .then(userApp(UserHub(H2Users(H2UsersDatabase().statement))))
 
 fun userApp(userHub: UserHub): RoutingHttpHandler {
     return routes(

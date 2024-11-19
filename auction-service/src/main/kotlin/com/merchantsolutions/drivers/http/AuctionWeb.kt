@@ -19,6 +19,7 @@ import org.http4k.core.Status.Companion.CONFLICT
 import org.http4k.core.Status.Companion.FORBIDDEN
 import org.http4k.core.Status.Companion.NOT_FOUND
 import org.http4k.core.Status.Companion.OK
+import org.http4k.filter.ServerFilters
 import org.http4k.filter.ServerFilters.BearerAuth
 import org.http4k.lens.bearerToken
 import org.http4k.routing.RoutingHttpHandler
@@ -30,11 +31,13 @@ fun AuctionApi(
     httpHandler: HttpHandler = OkHttp()
 ): RoutingHttpHandler {
     val h2AuctionDatabase = H2AuctionDatabase()
-    return auctionApp(
-        AuctionHub(
-            UsersClient(usersUri, httpHandler),
-            H2Auctions(h2AuctionDatabase.statement, production),
-            H2Products(h2AuctionDatabase.statement, production)
+    return ServerFilters.CatchAll().then(
+        auctionApp(
+            AuctionHub(
+                UsersClient(usersUri, httpHandler),
+                H2Auctions(h2AuctionDatabase.statement, production),
+                H2Products(h2AuctionDatabase.statement, production)
+            )
         )
     )
 }
