@@ -2,8 +2,8 @@ package com.merchantsolutions
 
 import com.merchantsolutions.AuctionJson.json
 import com.merchantsolutions.SellerActor.Product
+import com.merchantsolutions.adapters.db.H2AuctionDatabase
 import com.merchantsolutions.adapters.db.H2Auctions
-import com.merchantsolutions.adapters.db.H2DB
 import com.merchantsolutions.adapters.db.H2Products
 import com.merchantsolutions.adapters.db.Storage
 import com.merchantsolutions.adapters.db.truncateTables
@@ -34,7 +34,7 @@ import java.util.UUID
 
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 class AuctionServerTest {
-    private val storage: Storage = H2DB()
+    private val storage: Storage = H2AuctionDatabase()
     private val products = H2Products(storage.statement, testing)
     private val auctions = H2Auctions(storage.statement, testing)
     private val userService = UserApi()

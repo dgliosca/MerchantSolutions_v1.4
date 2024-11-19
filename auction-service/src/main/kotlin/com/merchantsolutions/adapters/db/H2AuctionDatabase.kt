@@ -4,8 +4,8 @@ import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.Statement
 
-class H2DB() : Storage {
-    val url = "jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1"
+class H2AuctionDatabase() : Storage {
+    val url = "jdbc:h2:mem:auction-database;DB_CLOSE_DELAY=-1"
     val user = "sa"
     val password = ""
 

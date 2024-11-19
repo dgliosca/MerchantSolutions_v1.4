@@ -17,7 +17,7 @@ import java.math.BigDecimal
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class H2ProductsTest {
-    private val storage: Storage = H2DB()
+    private val storage: Storage = H2AuctionDatabase()
     private val products = H2Products(storage.statement, testing)
 
     @BeforeEach
