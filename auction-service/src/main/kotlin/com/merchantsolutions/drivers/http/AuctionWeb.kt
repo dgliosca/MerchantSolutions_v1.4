@@ -2,35 +2,42 @@ package com.merchantsolutions.drivers.http
 
 import com.merchantsolutions.AuctionJson.auto
 import com.merchantsolutions.AuctionJson.json
+import com.merchantsolutions.adapters.db.*
+import com.merchantsolutions.adapters.users.UsersClient
 import com.merchantsolutions.application.AuctionHub
-import com.merchantsolutions.domain.Auction
-import com.merchantsolutions.domain.AuctionId
-import com.merchantsolutions.domain.AuctionResult
+import com.merchantsolutions.application.UserHub
+import com.merchantsolutions.domain.*
 import com.merchantsolutions.domain.AuctionResult.AuctionClosed
 import com.merchantsolutions.domain.AuctionResult.AuctionInProgress
 import com.merchantsolutions.domain.AuctionResult.AuctionNotFound
-import com.merchantsolutions.domain.AuctionState
 import com.merchantsolutions.domain.AuctionState.closed
-import com.merchantsolutions.domain.BidWithUser
-import com.merchantsolutions.domain.Money
-import com.merchantsolutions.domain.Product
-import com.merchantsolutions.domain.ProductId
-import com.merchantsolutions.domain.ProductToRegister
-import org.http4k.core.Body
+import org.http4k.client.OkHttp
+import org.http4k.core.*
 import org.http4k.core.Method.GET
 import org.http4k.core.Method.POST
-import org.http4k.core.Response
 import org.http4k.core.Status.Companion.CONFLICT
 import org.http4k.core.Status.Companion.FORBIDDEN
 import org.http4k.core.Status.Companion.NOT_FOUND
 import org.http4k.core.Status.Companion.OK
-import org.http4k.core.then
-import org.http4k.core.with
 import org.http4k.filter.ServerFilters.BearerAuth
 import org.http4k.lens.bearerToken
 import org.http4k.routing.RoutingHttpHandler
 import org.http4k.routing.bind
 import org.http4k.routing.routes
+
+fun AuctionApi(
+    usersUri: Uri = Uri.of("http://user-service"),
+    httpHandler: HttpHandler = OkHttp()
+): RoutingHttpHandler {
+    val h2AuctionDatabase = H2AuctionDatabase()
+    return auctionApp(
+        AuctionHub(
+            UsersClient(usersUri, httpHandler),
+            H2Auctions(h2AuctionDatabase.statement, production),
+            H2Products(h2AuctionDatabase.statement, production)
+        )
+    )
+}
 
 fun auctionApp(auctionHub: AuctionHub): RoutingHttpHandler {
     val validateTokenFilter = BearerAuth({ auctionHub.isValid(it) })
