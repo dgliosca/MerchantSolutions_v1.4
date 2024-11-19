@@ -15,8 +15,7 @@ class H2Products(storage: Storage, private val idGenerator: IdGenerator) : Produ
 
     override fun getProducts(): List<Product> {
         val products = mutableListOf<Product>()
-        val selectSQL = "SELECT * FROM products"
-        val result = statement.executeQuery(selectSQL)
+        val result = statement.executeQuery("SELECT * FROM products")
 
         while (result.next()) {
             val productId = ProductId(UUID.fromString(result.getString("id")))
@@ -31,8 +30,7 @@ class H2Products(storage: Storage, private val idGenerator: IdGenerator) : Produ
     }
 
     override fun get(productId: ProductId): Product? {
-        val selectSQL = "SELECT * FROM products WHERE id = '${productId.value}'";
-        val result = statement.executeQuery(selectSQL)
+        val result = statement.executeQuery("SELECT * FROM products WHERE id = '${productId.value}'")
         return if (result.next()) {
             val description = result.getString("description")
             val monetaryAmount = result.getBigDecimal("minimum_selling_price")
