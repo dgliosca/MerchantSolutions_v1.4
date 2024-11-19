@@ -22,6 +22,7 @@ class H2AuctionDatabase() : Storage {
 
 fun setupDatabase(connection: Connection) {
     connection.createStatement().use { statement ->
+        statement.execute("DROP ALL OBJECTS DELETE FILES")
         statement.execute(productsTable())
         statement.execute(auctionsTable())
         statement.execute(bidsTable())

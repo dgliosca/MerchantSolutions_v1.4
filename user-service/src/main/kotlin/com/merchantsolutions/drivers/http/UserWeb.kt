@@ -2,7 +2,8 @@ package com.merchantsolutions.drivers.http
 
 import com.merchantsolutions.UserJson.auto
 import com.merchantsolutions.UserJson.json
-import com.merchantsolutions.adapters.InMemoryUsers
+import com.merchantsolutions.adapters.db.H2Users
+import com.merchantsolutions.adapters.db.H2UsersDatabase
 import com.merchantsolutions.application.UserHub
 import com.merchantsolutions.domain.User
 import org.http4k.core.Body
@@ -16,7 +17,7 @@ import org.http4k.routing.RoutingHttpHandler
 import org.http4k.routing.bind
 import org.http4k.routing.routes
 
-fun UserApi() = userApp(UserHub(InMemoryUsers()))
+fun UserApi() = userApp(UserHub(H2Users(H2UsersDatabase().statement)))
 
 fun userApp(userHub: UserHub): RoutingHttpHandler {
     return routes(
