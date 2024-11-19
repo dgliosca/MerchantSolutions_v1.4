@@ -48,10 +48,10 @@ class AuctionServerTest {
     private val auctionServer = auctionApp(auctionHub)
 
     private val buyerOneId = UserId.of("00000000-0000-0000-0000-000000000001")
-    private val buyerOne = BuyerActor(auctionServer, "00000000-0000-0000-0000-000000000001")
+    private val buyerOne = BuyerActor(auctionServer, "00000000-0000-0000-1111-000000000001")
 
     private val buyerOneAuthenticated = buyerOne.authenticated()
-    private val buyerTwo = BuyerActor(auctionServer, "00000000-0000-0000-0000-000000000002")
+    private val buyerTwo = BuyerActor(auctionServer, "00000000-0000-0000-2222-000000000002")
 
     private val buyerTwoAuthenticated = buyerTwo.authenticated()
     private val sellerAuthenticated = SellerActor(auctionServer)

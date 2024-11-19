@@ -23,13 +23,13 @@ class H2UsersTest {
     fun `can get a token for a user`() {
         val buyerOne = UserId(UUID.fromString("00000000-0000-0000-0000-000000000001"))
 
-        val user = h2Users.getUserByToken("00000000-0000-0000-0000-000000000001")
+        val user = h2Users.getUserByToken("00000000-0000-0000-1111-000000000001")
         assertThat(user, equalTo(User(buyerOne)))
     }
 
     @Test
     fun `is valid token`() {
-        val actual = h2Users.isValid("00000000-0000-0000-0000-000000000001")
+        val actual = h2Users.isValid("00000000-0000-0000-1111-000000000001")
         assertThat(actual, equalTo(true))
     }
 }

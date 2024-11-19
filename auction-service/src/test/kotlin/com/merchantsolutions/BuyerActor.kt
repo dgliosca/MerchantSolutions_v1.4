@@ -3,7 +3,6 @@ package com.merchantsolutions
 import com.merchantsolutions.AuctionJson.auto
 import com.merchantsolutions.domain.AuctionId
 import com.merchantsolutions.domain.Money
-import com.merchantsolutions.domain.ProductId
 import com.merchantsolutions.domain.UserId
 import org.http4k.core.Body
 import org.http4k.core.HttpHandler
@@ -15,7 +14,7 @@ import org.http4k.core.then
 import org.http4k.core.with
 import org.http4k.filter.ClientFilters.BearerAuth
 
-class BuyerActor(val httpHandler: HttpHandler, val authToken: String = "00000000-0000-0000-0000-000000000001") {
+class BuyerActor(val httpHandler: HttpHandler, val authToken: String = "00000000-0000-0000-1111-000000000001") {
     fun authenticated() = BuyerActor(
         BearerAuth(authToken)
             .then(httpHandler)

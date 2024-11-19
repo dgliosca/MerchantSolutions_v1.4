@@ -17,14 +17,13 @@ import org.http4k.core.then
 import org.http4k.core.with
 import org.http4k.filter.ClientFilters.BearerAuth
 import org.http4k.filter.ClientFilters.BearerAuth.invoke
-import java.util.*
 
 private val backOfficeProducts = Body.auto<List<BackOfficeProduct>>().toLens()
 private val productIdLens = Body.auto<ProductId>().toLens()
 private val auctionIdLens = Body.auto<AuctionId>().toLens()
 
 class BackOfficeActor(http: HttpHandler) {
-    val authenticatedHttp = BearerAuth("00000000-0000-0000-0000-000000000003")
+    val authenticatedHttp = BearerAuth("00000000-0000-0000-3333-000000000003")
         .then(http)
 
     fun startAuction(auctionId: AuctionId) {

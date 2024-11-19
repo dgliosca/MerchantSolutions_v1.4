@@ -2,7 +2,7 @@ package com.merchantsolutions
 
 import com.merchantsolutions.UserJson.auto
 import com.merchantsolutions.UserJson.json
-import com.merchantsolutions.adapters.InMemoryUsers
+import com.merchantsolutions.adapters.db.H2Users
 import com.merchantsolutions.adapters.db.H2UsersDatabase
 import com.merchantsolutions.application.UserHub
 import com.merchantsolutions.domain.User
@@ -23,7 +23,7 @@ import org.junit.jupiter.api.TestInstance
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class UserServiceTest {
     private val storage = H2UsersDatabase()
-    private val userHub = UserHub(InMemoryUsers())
+    private val userHub = UserHub(H2Users(storage.statement))
     private val userService = userApp(userHub)
 
     @AfterAll
@@ -35,7 +35,7 @@ class UserServiceTest {
     fun `is valid user`() {
         val response = userService(
             Request(GET, "/is-valid").with(
-                Body.auto<String>().toLens() of "00000000-0000-0000-0000-000000000001"
+                Body.auto<String>().toLens() of "00000000-0000-0000-1111-000000000001"
             )
         )
         assertThat(response.json<Boolean>(), equalTo(true))
@@ -45,7 +45,7 @@ class UserServiceTest {
     fun `invalid token`() {
         val response = userService(
             Request(GET, "/is-valid").with(
-                Body.auto<String>().toLens() of "00000000-0000-0000-0000-00000000000X"
+                Body.auto<String>().toLens() of "00000000-0000-0000-0000-000000000009"
             )
         )
         assertThat(response.json<Boolean>(), equalTo(false))
@@ -55,7 +55,7 @@ class UserServiceTest {
     fun `user by token`() {
         val response = userService(
             Request(GET, "/user-by-token").with(
-                Body.auto<String>().toLens() of "00000000-0000-0000-0000-000000000001"
+                Body.auto<String>().toLens() of "00000000-0000-0000-1111-000000000001"
             )
         )
         assertThat(response.json<User>(), equalTo(User(UserId.of("00000000-0000-0000-0000-000000000001"))))
@@ -65,7 +65,7 @@ class UserServiceTest {
     fun `user does not exist`() {
         val response = userService(
             Request(GET, "/user-by-token").with(
-                Body.auto<String>().toLens() of "00000000-0000-0000-0000-00000000000X"
+                Body.auto<String>().toLens() of "00000000-0000-0000-0000-000000000009"
             )
         )
         assertThat(response.status, equalTo(NOT_FOUND))
