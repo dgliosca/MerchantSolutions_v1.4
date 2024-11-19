@@ -22,8 +22,8 @@ import java.util.UUID
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class H2AuctionsTest {
     private val storage: Storage = H2AuctionDatabase()
-    private val auctions = H2Auctions(storage.statement, testing)
-    private val products = H2Products(storage.statement, testing)
+    private val auctions = H2Auctions(storage, testing)
+    private val products = H2Products(storage, testing)
 
     @BeforeEach
     fun beforeEach() {

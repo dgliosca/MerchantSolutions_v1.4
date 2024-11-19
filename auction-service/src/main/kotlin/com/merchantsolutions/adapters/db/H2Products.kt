@@ -6,11 +6,12 @@ import com.merchantsolutions.domain.Product
 import com.merchantsolutions.domain.ProductId
 import com.merchantsolutions.domain.ProductToRegister
 import com.merchantsolutions.ports.Products
-import java.sql.Statement
 import java.util.Currency
 import java.util.UUID
 
-class H2Products(private val statement: Statement, private val idGenerator: IdGenerator) : Products {
+class H2Products(storage: Storage, private val idGenerator: IdGenerator) : Products {
+
+    private val statement = storage.statement
 
     override fun getProducts(): List<Product> {
         val products = mutableListOf<Product>()

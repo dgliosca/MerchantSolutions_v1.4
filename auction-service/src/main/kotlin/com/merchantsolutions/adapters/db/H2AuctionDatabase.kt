@@ -5,11 +5,11 @@ import java.sql.DriverManager
 import java.sql.Statement
 
 class H2AuctionDatabase() : Storage {
-    val url = "jdbc:h2:mem:auction-database;DB_CLOSE_DELAY=-1"
-    val user = "sa"
-    val password = ""
+    private val url = "jdbc:h2:mem:auction-database;DB_CLOSE_DELAY=-1"
+    private val user = "sa"
+    private val password = ""
 
-    val connection = DriverManager.getConnection(url, user, password).apply { setupDatabase(this) }
+    private val connection = DriverManager.getConnection(url, user, password).apply { setupDatabase(this) }
 
     override fun close() {
         statement.execute("SHUTDOWN")

@@ -11,11 +11,11 @@ import com.merchantsolutions.domain.ProductId
 import com.merchantsolutions.domain.UserId
 import com.merchantsolutions.ports.Auctions
 import java.sql.ResultSet
-import java.sql.Statement
 import java.util.Currency
 import java.util.UUID
 
-class H2Auctions(private val statement: Statement, private val idGenerator: IdGenerator) : Auctions {
+class H2Auctions(private val storage: Storage, private val idGenerator: IdGenerator) : Auctions {
+    private val statement = storage.statement
 
     override fun getAuction(auctionId: AuctionId): Auction? {
         val result = statement.executeQuery(

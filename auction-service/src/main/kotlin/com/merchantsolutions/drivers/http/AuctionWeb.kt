@@ -5,7 +5,6 @@ import com.merchantsolutions.AuctionJson.json
 import com.merchantsolutions.adapters.db.*
 import com.merchantsolutions.adapters.users.UsersClient
 import com.merchantsolutions.application.AuctionHub
-import com.merchantsolutions.application.UserHub
 import com.merchantsolutions.domain.*
 import com.merchantsolutions.domain.AuctionResult.AuctionClosed
 import com.merchantsolutions.domain.AuctionResult.AuctionInProgress
@@ -35,8 +34,8 @@ fun AuctionApi(
         auctionApp(
             AuctionHub(
                 UsersClient(usersUri, httpHandler),
-                H2Auctions(h2AuctionDatabase.statement, production),
-                H2Products(h2AuctionDatabase.statement, production)
+                H2Auctions(h2AuctionDatabase, production),
+                H2Products(h2AuctionDatabase, production)
             )
         )
     )

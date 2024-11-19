@@ -35,8 +35,8 @@ import java.util.UUID
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 class AuctionServerTest {
     private val storage: Storage = H2AuctionDatabase()
-    private val products = H2Products(storage.statement, testing)
-    private val auctions = H2Auctions(storage.statement, testing)
+    private val products = H2Products(storage, testing)
+    private val auctions = H2Auctions(storage, testing)
     private val userService = UserApi()
 
     @BeforeEach
