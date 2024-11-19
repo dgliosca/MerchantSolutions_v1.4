@@ -3,6 +3,7 @@ package com.merchantsolutions
 import com.merchantsolutions.UserJson.auto
 import com.merchantsolutions.UserJson.json
 import com.merchantsolutions.adapters.InMemoryUsers
+import com.merchantsolutions.adapters.db.H2UsersDatabase
 import com.merchantsolutions.application.UserHub
 import com.merchantsolutions.domain.User
 import com.merchantsolutions.domain.UserId
@@ -15,11 +16,20 @@ import org.http4k.core.Request
 import org.http4k.core.Request.Companion.invoke
 import org.http4k.core.Status.Companion.NOT_FOUND
 import org.http4k.core.with
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class UserServiceTest {
+    private val storage = H2UsersDatabase()
     private val userHub = UserHub(InMemoryUsers())
     private val userService = userApp(userHub)
+
+    @AfterAll
+    fun afterAll() {
+        storage.close()
+    }
 
     @Test
     fun `is valid user`() {

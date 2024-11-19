@@ -12,6 +12,8 @@ class H2AuctionDatabase() : Storage {
     val connection = DriverManager.getConnection(url, user, password).apply { setupDatabase(this) }
 
     override fun close() {
+        statement.execute("SHUTDOWN")
+        statement.close()
         connection.close()
     }
 
