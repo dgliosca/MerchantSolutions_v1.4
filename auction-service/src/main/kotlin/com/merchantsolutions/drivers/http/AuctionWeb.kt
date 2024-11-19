@@ -43,7 +43,7 @@ fun AuctionApi(
 }
 
 fun auctionApp(auctionHub: AuctionHub): RoutingHttpHandler {
-    val validateTokenFilter = BearerAuth({ auctionHub.isValid(it) })
+    val validateTokenFilter = BearerAuth { auctionHub.isValid(it) }
     return validateTokenFilter.then(
         routes(
             "/register-product" bind POST to { request ->

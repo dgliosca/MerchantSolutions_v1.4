@@ -15,10 +15,10 @@ import java.sql.Statement
 import java.util.Currency
 import java.util.UUID
 
-class H2Auctions(val statement: Statement, val idGenerator: IdGenerator) : Auctions {
+class H2Auctions(private val statement: Statement, private val idGenerator: IdGenerator) : Auctions {
 
     override fun getAuction(auctionId: AuctionId): Auction? {
-        val selectSQL =
+        val result = statement.executeQuery(
             """SELECT
                 a.id AS auction_id,
                 a.state,
@@ -31,18 +31,16 @@ class H2Auctions(val statement: Statement, val idGenerator: IdGenerator) : Aucti
             JOIN products p ON a.product_id = p.id
             WHERE
                 a.id = '${auctionId.value}';"""
-        val rs = statement.executeQuery(selectSQL)
-        return if (rs.next()) {
-            rs.toAuction()
+        )
+        return if (result.next()) {
+            result.toAuction()
         } else null
     }
 
     override fun createAuction(
         productId: ProductId
     ): AuctionId {
-        val selectSQL = "SELECT * FROM products WHERE id = '${productId.value}'";
-        val rs = statement.executeQuery(selectSQL)
-        if (rs.next() == false) {
+        if (!statement.executeQuery("SELECT * FROM products WHERE id = '${productId.value}'").next()) {
             throw IllegalStateException("Product does not exist with id: ${productId.value}")
         }
         val auctionId = AuctionId(idGenerator())
@@ -64,7 +62,7 @@ class H2Auctions(val statement: Statement, val idGenerator: IdGenerator) : Aucti
 
     override fun openedAuctions(): List<Auction> {
         val auctions = mutableListOf<Auction>()
-        val selectSQL =
+        val result = statement.executeQuery(
             """SELECT
                 a.id AS auction_id,
                 a.state,
@@ -76,26 +74,26 @@ class H2Auctions(val statement: Statement, val idGenerator: IdGenerator) : Aucti
                 auctions a
             JOIN products p ON a.product_id = p.id
             WHERE a.state = 'opened';"""
-        val rs = statement.executeQuery(selectSQL)
-        while (rs.next()) {
-            auctions.add(rs.toAuction())
+        )
+        while (result.next()) {
+            auctions.add(result.toAuction())
         }
         return auctions
     }
 
     override fun winningBid(id: AuctionId): BidWithUser? {
-        val rs = statement.executeQuery(
+        val result = statement.executeQuery(
             """SELECT *
             FROM bids
             WHERE amount = (SELECT MAX(amount) FROM bids)
             ORDER BY id ASC
             LIMIT 1;"""
         )
-        return if (rs.next()) {
-            val auctionId = AuctionId(UUID.fromString(rs.getString("auction_id")))
-            val userId = UserId(UUID.fromString(rs.getString("user_id")))
-            val monetaryAmount = rs.getBigDecimal("amount")
-            val currency = Currency.getInstance(rs.getString("currency"))
+        return if (result.next()) {
+            val auctionId = AuctionId(UUID.fromString(result.getString("auction_id")))
+            val userId = UserId(UUID.fromString(result.getString("user_id")))
+            val monetaryAmount = result.getBigDecimal("amount")
+            val currency = Currency.getInstance(result.getString("currency"))
             BidWithUser(
                 auctionId,
                 userId,
