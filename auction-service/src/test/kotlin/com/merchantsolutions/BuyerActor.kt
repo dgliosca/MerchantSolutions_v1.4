@@ -34,7 +34,7 @@ class BuyerActor(val httpHandler: HttpHandler, val authToken: String = "00000000
 }
 
 data class AuctionClosed(val userId: UserId, val winningBid: Money)
-data class Auction(val auctionId: AuctionId, val state: State)
+data class Auction(val auctionId: AuctionId, val description: String, val state: State)
 data class Bid(val auctionId: AuctionId, val price: Money)
 enum class State {
     opened, closed

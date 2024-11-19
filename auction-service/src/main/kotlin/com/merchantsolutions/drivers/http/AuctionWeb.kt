@@ -100,12 +100,14 @@ fun auctionApp(auctionHub: AuctionHub): RoutingHttpHandler {
 private fun List<Auction>.toDto() = map {
     AuctionDto(
         it.auctionId,
+        it.product.description,
         it.state
     )
 }
 
 data class AuctionDto(
     val auctionId: AuctionId,
+    val description: String,
     val state: AuctionState = closed
 )
 
