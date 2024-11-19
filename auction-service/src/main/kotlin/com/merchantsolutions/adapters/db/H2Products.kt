@@ -6,25 +6,22 @@ import com.merchantsolutions.domain.Product
 import com.merchantsolutions.domain.ProductId
 import com.merchantsolutions.domain.ProductToRegister
 import com.merchantsolutions.ports.Products
-import java.math.BigDecimal
-import java.sql.PreparedStatement
-import java.sql.ResultSet
 import java.sql.Statement
 import java.util.Currency
 import java.util.UUID
 
-class H2Products(val statement: Statement, val idGenerator: IdGenerator) : Products {
+class H2Products(private val statement: Statement, private val idGenerator: IdGenerator) : Products {
 
     override fun getProducts(): List<Product> {
         val products = mutableListOf<Product>()
         val selectSQL = "SELECT * FROM products"
-        val rs = statement.executeQuery(selectSQL)
+        val result = statement.executeQuery(selectSQL)
 
-        while (rs.next()) {
-            val productId = ProductId(UUID.fromString(rs.getString("id")))
-            val description = rs.getString("description")
-            val monetaryAmount = rs.getBigDecimal("minimum_selling_price")
-            val currency = Currency.getInstance(rs.getString("currency"))
+        while (result.next()) {
+            val productId = ProductId(UUID.fromString(result.getString("id")))
+            val description = result.getString("description")
+            val monetaryAmount = result.getBigDecimal("minimum_selling_price")
+            val currency = Currency.getInstance(result.getString("currency"))
             val product = Product(productId, description, Money(currency, monetaryAmount))
             products.add(product)
         }
@@ -34,12 +31,11 @@ class H2Products(val statement: Statement, val idGenerator: IdGenerator) : Produ
 
     override fun get(productId: ProductId): Product? {
         val selectSQL = "SELECT * FROM products WHERE id = '${productId.value}'";
-        val rs = statement.executeQuery(selectSQL)
-        return if (rs.next()) {
-            val productId = ProductId(UUID.fromString(rs.getString("id")))
-            val description = rs.getString("description")
-            val monetaryAmount = rs.getBigDecimal("minimum_selling_price")
-            val currency = Currency.getInstance(rs.getString("currency"))
+        val result = statement.executeQuery(selectSQL)
+        return if (result.next()) {
+            val description = result.getString("description")
+            val monetaryAmount = result.getBigDecimal("minimum_selling_price")
+            val currency = Currency.getInstance(result.getString("currency"))
             Product(productId, description, Money(currency, monetaryAmount))
         } else
             null
