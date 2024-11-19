@@ -20,7 +20,7 @@ import org.http4k.routing.bind
 import org.http4k.routing.routes
 
 fun UserApi() = ServerFilters.CatchAll()
-    .then(userApp(UserHub(H2Users(H2UsersDatabase().statement))))
+    .then(userApp(UserHub(H2Users(H2UsersDatabase()))))
 
 fun userApp(userHub: UserHub): RoutingHttpHandler {
     return routes(

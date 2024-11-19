@@ -8,11 +8,11 @@ import java.sql.Statement
 import java.util.UUID
 
 class H2UsersDatabase() : Storage {
-    val url = "jdbc:h2:mem:users-database;DB_CLOSE_DELAY=-1"
-    val user = "sa"
-    val password = ""
+    private val url = "jdbc:h2:mem:users-database;DB_CLOSE_DELAY=-1"
+    private val user = "sa"
+    private val password = ""
 
-    val connection = DriverManager.getConnection(url, user, password).apply { setupDatabase(this) }
+    private val connection = DriverManager.getConnection(url, user, password).apply { setupDatabase(this) }
 
     override fun close() {
         statement.execute("SHUTDOWN")

@@ -1,12 +1,13 @@
 package com.merchantsolutions.adapters.db
 
+import com.merchantsolutions.adapters.Storage
 import com.merchantsolutions.domain.User
 import com.merchantsolutions.domain.UserId
 import com.merchantsolutions.ports.Users
-import java.sql.Statement
 import java.util.UUID
 
-class H2Users(val statement: Statement) : Users {
+class H2Users(val storage: Storage) : Users {
+    private val statement = storage.statement
 
     override fun isValid(token: String): Boolean {
         return statement.executeQuery("SELECT user_id FROM token_to_user WHERE token = '$token'").next()

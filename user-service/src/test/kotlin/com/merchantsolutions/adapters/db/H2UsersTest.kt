@@ -11,8 +11,8 @@ import java.util.UUID
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class H2UsersTest {
-    val storage = H2UsersDatabase()
-    val h2Users = H2Users(storage.statement)
+    private val storage = H2UsersDatabase()
+    private val h2Users = H2Users(storage)
 
     @AfterAll
     fun afterAll() {

@@ -23,7 +23,7 @@ import org.junit.jupiter.api.TestInstance
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class UserServiceTest {
     private val storage = H2UsersDatabase()
-    private val userHub = UserHub(H2Users(storage.statement))
+    private val userHub = UserHub(H2Users(storage))
     private val userService = userApp(userHub)
 
     @AfterAll
