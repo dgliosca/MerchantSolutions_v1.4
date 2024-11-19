@@ -9,17 +9,13 @@ import java.util.UUID
 class H2Users(val statement: Statement) : Users {
 
     override fun isValid(token: String): Boolean {
-        val selectSQL = "SELECT user_id FROM token_to_user WHERE token = '$token'"
-        val rs = statement.executeQuery(selectSQL)
-        return rs.next()
+        return statement.executeQuery("SELECT user_id FROM token_to_user WHERE token = '$token'").next()
     }
 
     override fun getUserByToken(token: String): User? {
-        val selectSQL =
-            "SELECT u.id as user_id FROM users u JOIN token_to_user ttu ON u.id = ttu.user_id WHERE ttu.token = '$token'"
-        val rs = statement.executeQuery(selectSQL)
-        return if (rs.next()) {
-            User(UserId(UUID.fromString(rs.getString("user_id"))))
+        val result = statement.executeQuery("SELECT u.id as user_id FROM users u JOIN token_to_user ttu ON u.id = ttu.user_id WHERE ttu.token = '$token'")
+        return if (result.next()) {
+            User(UserId(UUID.fromString(result.getString("user_id"))))
         } else
             null
     }
