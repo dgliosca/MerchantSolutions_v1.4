@@ -7,8 +7,8 @@ import java.sql.DriverManager
 import java.sql.Statement
 import java.util.UUID
 
-class H2DB() : Storage {
-    val url = "jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1"
+class H2UsersDatabase() : Storage {
+    val url = "jdbc:h2:mem:users-database;DB_CLOSE_DELAY=-1"
     val user = "sa"
     val password = ""
 

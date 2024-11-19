@@ -1,36 +1,36 @@
 package com.merchantsolutions
 
-import com.merchantsolutions.SellerActor.Product
-import com.merchantsolutions.application.AuctionHub
-import com.merchantsolutions.domain.AuctionId
-import com.merchantsolutions.domain.Money
-import com.merchantsolutions.domain.Money.Companion.gbp
-import com.merchantsolutions.domain.ProductId
-import com.merchantsolutions.domain.UserId
-import com.merchantsolutions.drivers.http.auctionApp
-import com.natpryce.hamkrest.assertion.assertThat
-import com.natpryce.hamkrest.equalTo
-import com.natpryce.hamkrest.hasElement
-import com.natpryce.hamkrest.isEmpty
-import org.http4k.core.Status.Companion.CONFLICT
-import org.http4k.core.Status.Companion.OK
-import org.http4k.core.Status.Companion.UNAUTHORIZED
-import org.junit.jupiter.api.Test
-import java.math.BigDecimal
-import java.util.UUID
 import com.merchantsolutions.AuctionJson.json
+import com.merchantsolutions.SellerActor.Product
 import com.merchantsolutions.adapters.db.H2Auctions
 import com.merchantsolutions.adapters.db.H2DB
 import com.merchantsolutions.adapters.db.H2Products
 import com.merchantsolutions.adapters.db.Storage
 import com.merchantsolutions.adapters.db.truncateTables
 import com.merchantsolutions.adapters.users.UsersClient
+import com.merchantsolutions.application.AuctionHub
+import com.merchantsolutions.domain.AuctionId
+import com.merchantsolutions.domain.Money
+import com.merchantsolutions.domain.Money.Companion.gbp
+import com.merchantsolutions.domain.ProductId
+import com.merchantsolutions.domain.UserId
 import com.merchantsolutions.drivers.http.UserApi
+import com.merchantsolutions.drivers.http.auctionApp
+import com.natpryce.hamkrest.assertion.assertThat
+import com.natpryce.hamkrest.equalTo
+import com.natpryce.hamkrest.hasElement
 import com.natpryce.hamkrest.hasSize
+import com.natpryce.hamkrest.isEmpty
+import org.http4k.core.Status.Companion.CONFLICT
 import org.http4k.core.Status.Companion.NOT_FOUND
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.TestInstance
+import org.http4k.core.Status.Companion.OK
+import org.http4k.core.Status.Companion.UNAUTHORIZED
 import org.http4k.core.Uri
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
+import java.math.BigDecimal
+import java.util.UUID
 
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 class AuctionServerTest {
