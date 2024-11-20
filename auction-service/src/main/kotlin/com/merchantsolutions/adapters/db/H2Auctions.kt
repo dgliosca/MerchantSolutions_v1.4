@@ -14,7 +14,7 @@ import java.sql.ResultSet
 import java.util.Currency
 import java.util.UUID
 
-class H2Auctions(private val storage: Storage, private val idGenerator: IdGenerator) : Auctions {
+class H2Auctions(storage: Storage, private val idGenerator: IdGenerator) : Auctions {
     private val statement = storage.statement
 
     override fun getAuction(auctionId: AuctionId): Auction? {
