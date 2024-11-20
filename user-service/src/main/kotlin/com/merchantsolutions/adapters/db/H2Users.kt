@@ -6,7 +6,7 @@ import com.merchantsolutions.domain.UserId
 import com.merchantsolutions.ports.Users
 import java.util.UUID
 
-class H2Users(val storage: Storage) : Users {
+class H2Users(private val storage: Storage) : Users {
     private val statement = storage.statement
 
     override fun isValid(token: String): Boolean {
