@@ -31,8 +31,7 @@ fun userApp(userHub: UserHub): RoutingHttpHandler {
         },
         "/user-by-token" bind GET to { request ->
             val token = request.json<String>()
-            val result = userHub.getUserByToken(token)
-            when (result) {
+            when (val result = userHub.getUserByToken(token)) {
                 null -> Response(NOT_FOUND)
                 else -> Response(OK).with(Body.auto<User>().toLens() of result)
             }
