@@ -4,4 +4,5 @@ plugins {
 rootProject.name = "MerchantSolutions_v1.4"
 include("auction-service")
 include("user-service")
+include("util")
 

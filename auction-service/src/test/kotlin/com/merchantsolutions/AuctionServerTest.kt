@@ -2,13 +2,10 @@ package com.merchantsolutions
 
 import com.merchantsolutions.AuctionJson.json
 import com.merchantsolutions.SellerActor.Product
-import com.merchantsolutions.adapters.db.H2AuctionDatabase
-import com.merchantsolutions.adapters.db.H2Auctions
-import com.merchantsolutions.adapters.db.H2Products
-import com.merchantsolutions.adapters.db.Storage
-import com.merchantsolutions.adapters.db.truncateTables
+import com.merchantsolutions.adapters.db.*
 import com.merchantsolutions.adapters.users.UsersClient
 import com.merchantsolutions.application.AuctionHub
+import com.merchantsolutions.application.UserHub
 import com.merchantsolutions.domain.AuctionId
 import com.merchantsolutions.domain.Money
 import com.merchantsolutions.domain.Money.Companion.gbp
@@ -16,6 +13,7 @@ import com.merchantsolutions.domain.ProductId
 import com.merchantsolutions.domain.UserId
 import com.merchantsolutions.drivers.http.UserApi
 import com.merchantsolutions.drivers.http.auctionApp
+import com.merchantsolutions.drivers.http.userApp
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.hasElement

@@ -5,6 +5,7 @@ import com.merchantsolutions.UserJson.json
 import com.merchantsolutions.adapters.db.H2Users
 import com.merchantsolutions.adapters.db.H2UsersDatabase
 import com.merchantsolutions.application.UserHub
+import com.merchantsolutions.db.H2Transactor
 import com.merchantsolutions.domain.User
 import com.merchantsolutions.domain.UserId
 import com.merchantsolutions.drivers.http.userApp
@@ -23,7 +24,7 @@ import org.junit.jupiter.api.TestInstance
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class UserServiceTest {
     private val storage = H2UsersDatabase()
-    private val userHub = UserHub(H2Users(storage))
+    private val userHub = UserHub(H2Users(), H2Transactor(storage.connection))
     private val userService = userApp(userHub)
 
     @AfterAll

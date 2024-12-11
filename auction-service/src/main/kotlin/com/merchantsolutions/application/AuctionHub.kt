@@ -1,15 +1,9 @@
 package com.merchantsolutions.application
 
-import com.merchantsolutions.domain.Auction
-import com.merchantsolutions.domain.AuctionId
-import com.merchantsolutions.domain.AuctionResult
+import com.merchantsolutions.domain.*
 import com.merchantsolutions.domain.AuctionResult.AuctionClosedNoWinner
 import com.merchantsolutions.domain.AuctionState.closed
 import com.merchantsolutions.domain.AuctionState.opened
-import com.merchantsolutions.domain.BidWithUser
-import com.merchantsolutions.domain.Product
-import com.merchantsolutions.domain.ProductId
-import com.merchantsolutions.domain.ProductToRegister
 import com.merchantsolutions.ports.Auctions
 import com.merchantsolutions.ports.Products
 import com.merchantsolutions.ports.Users
@@ -63,10 +57,12 @@ class AuctionHub(val users: Users, val auctions: Auctions, val products: Product
         }
     }
 
-    fun getUserByToken(token: String) = if (users.isValid(token)) {
-        users.getUserByToken(token)?.userId
-    } else
+    fun getUserByToken(token: String): UserId? {
+        return if (users.isValid(token)) {
+            users.getUserByToken(token)?.userId
+        } else
         null
+    }
 
     fun isValid(token: String?): Boolean = token?.let { users.isValid(token) } == true
 }
