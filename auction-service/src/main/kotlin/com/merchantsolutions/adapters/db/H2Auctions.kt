@@ -1,5 +1,6 @@
 package com.merchantsolutions.adapters.db
 
+import com.merchantsolutions.db.H2TxContext
 import com.merchantsolutions.domain.Auction
 import com.merchantsolutions.domain.AuctionId
 import com.merchantsolutions.domain.AuctionState
@@ -14,11 +15,10 @@ import java.sql.ResultSet
 import java.util.Currency
 import java.util.UUID
 
-class H2Auctions(storage: Storage, private val idGenerator: IdGenerator) : Auctions {
-    private val statement = storage.statement
+class H2Auctions(private val idGenerator: IdGenerator) : Auctions<H2TxContext> {
 
-    override fun getAuction(auctionId: AuctionId): Auction? {
-        val result = statement.executeQuery(
+    override fun getAuction(transactor: H2TxContext, auctionId: AuctionId): Auction? {
+        val result = transactor.executeQuery(
             """SELECT
                 a.id AS auction_id,
                 a.state,
@@ -37,14 +37,14 @@ class H2Auctions(storage: Storage, private val idGenerator: IdGenerator) : Aucti
         } else null
     }
 
-    override fun createAuction(
-        productId: ProductId
+    override fun createAuction(transactor: H2TxContext,
+                               productId: ProductId
     ): AuctionId {
-        if (!statement.executeQuery("SELECT * FROM products WHERE id = '${productId.value}'").next()) {
+        if (!transactor.executeQuery("SELECT * FROM products WHERE id = '${productId.value}'").next()) {
             throw IllegalStateException("Product does not exist with id: ${productId.value}")
         }
         val auctionId = AuctionId(idGenerator())
-        val result = statement.executeUpdate(
+        val result = transactor.executeUpdate(
             "INSERT INTO auctions (id, product_id, state) VALUES ('${auctionId.value}', '${productId.value}', '${AuctionState.closed.name}');"
         )
         if (result != 1) {
@@ -53,16 +53,16 @@ class H2Auctions(storage: Storage, private val idGenerator: IdGenerator) : Aucti
         return auctionId
     }
 
-    override fun addBid(bid: BidWithUser) {
-        statement.executeUpdate(
+    override fun addBid(transactor: H2TxContext, bid: BidWithUser) {
+        transactor.executeUpdate(
             "INSERT INTO bids (user_id, auction_id, amount, currency)\n" +
                     "VALUES ('${bid.userId.value}', '${bid.auctionId.value}', ${bid.price.amount}, '${bid.price.currency}');"
         )
     }
 
-    override fun openedAuctions(): List<Auction> {
+    override fun openedAuctions(transactor: H2TxContext): List<Auction> {
         val auctions = mutableListOf<Auction>()
-        val result = statement.executeQuery(
+        val result = transactor.executeQuery(
             """SELECT
                 a.id AS auction_id,
                 a.state,
@@ -81,8 +81,8 @@ class H2Auctions(storage: Storage, private val idGenerator: IdGenerator) : Aucti
         return auctions
     }
 
-    override fun winningBid(id: AuctionId): BidWithUser? {
-        val result = statement.executeQuery(
+    override fun winningBid(transactor: H2TxContext, id: AuctionId): BidWithUser? {
+        val result = transactor.executeQuery(
             """SELECT *
             FROM bids
             WHERE amount = (SELECT MAX(amount) FROM bids)
@@ -102,13 +102,13 @@ class H2Auctions(storage: Storage, private val idGenerator: IdGenerator) : Aucti
         } else null
     }
 
-    override fun openAuction(id: AuctionId): Boolean {
-        val result = statement.executeUpdate("""UPDATE auctions SET state = 'opened' WHERE id = '${id.value}';""")
+    override fun openAuction(transactor: H2TxContext, id: AuctionId): Boolean {
+        val result = transactor.executeUpdate("""UPDATE auctions SET state = 'opened' WHERE id = '${id.value}';""")
         return result == 1
     }
 
-    override fun closeAuction(id: AuctionId): Boolean {
-        val result = statement.executeUpdate("""UPDATE auctions SET state = 'closed' WHERE id = '${id.value}';""")
+    override fun closeAuction(transactor: H2TxContext, id: AuctionId): Boolean {
+        val result = transactor.executeUpdate("""UPDATE auctions SET state = 'closed' WHERE id = '${id.value}';""")
         return result == 1
     }
 }

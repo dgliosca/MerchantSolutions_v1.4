@@ -1,5 +1,6 @@
 package com.merchantsolutions.adapters.db
 
+import com.merchantsolutions.db.H2TxContext
 import com.merchantsolutions.domain.IdGenerator
 import com.merchantsolutions.domain.Money
 import com.merchantsolutions.domain.Product
@@ -9,13 +10,11 @@ import com.merchantsolutions.ports.Products
 import java.util.Currency
 import java.util.UUID
 
-class H2Products(storage: Storage, private val idGenerator: IdGenerator) : Products {
+class H2Products(private val idGenerator: IdGenerator) : Products<H2TxContext> {
 
-    private val statement = storage.statement
-
-    override fun getProducts(): List<Product> {
+    override fun getProducts(transactor: H2TxContext): List<Product> {
         val products = mutableListOf<Product>()
-        val result = statement.executeQuery("SELECT * FROM products")
+        val result = transactor.executeQuery("SELECT * FROM products")
 
         while (result.next()) {
             val productId = ProductId(UUID.fromString(result.getString("id")))
@@ -29,8 +28,8 @@ class H2Products(storage: Storage, private val idGenerator: IdGenerator) : Produ
         return products
     }
 
-    override fun get(productId: ProductId): Product? {
-        val result = statement.executeQuery("SELECT * FROM products WHERE id = '${productId.value}'")
+    override fun get(transactor: H2TxContext, productId: ProductId): Product? {
+        val result = transactor.executeQuery("SELECT * FROM products WHERE id = '${productId.value}'")
         return if (result.next()) {
             val description = result.getString("description")
             val monetaryAmount = result.getBigDecimal("minimum_selling_price")
@@ -40,9 +39,9 @@ class H2Products(storage: Storage, private val idGenerator: IdGenerator) : Produ
             null
     }
 
-    override fun add(product: ProductToRegister): ProductId {
+    override fun add(transactor: H2TxContext, product: ProductToRegister): ProductId {
         val productId = ProductId(idGenerator())
-        statement.execute(
+        transactor.execute(
             "INSERT INTO products (id, description, minimum_selling_price, currency) VALUES ('${productId.value}', '${product.description}', ${product.minimumSellingPrice.amount}, '${product.minimumSellingPrice.currency.currencyCode}');"
         )
         return productId

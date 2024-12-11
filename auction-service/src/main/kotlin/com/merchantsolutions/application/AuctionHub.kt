@@ -1,5 +1,6 @@
 package com.merchantsolutions.application
 
+import com.merchantsolutions.db.Transactor
 import com.merchantsolutions.domain.*
 import com.merchantsolutions.domain.AuctionResult.AuctionClosedNoWinner
 import com.merchantsolutions.domain.AuctionState.closed
@@ -8,52 +9,69 @@ import com.merchantsolutions.ports.Auctions
 import com.merchantsolutions.ports.Products
 import com.merchantsolutions.ports.Users
 
-class AuctionHub(val users: Users, val auctions: Auctions, val products: Products) {
+class AuctionHub<TX>(
+    val users: Users,
+    val auctions: Auctions<TX>,
+    val products: Products<TX>,
+    val transactor: Transactor<TX>
+) {
 
     fun add(product: ProductToRegister): ProductId {
-        return products.add(product)
+        return transactor {
+            products.add(it, product)
+        }
     }
 
-    fun listProducts(): List<Product> = products.getProducts()
+    fun listProducts(): List<Product> = transactor { products.getProducts(it) }
 
     fun openAuctionFor(id: AuctionId): Boolean {
-        return auctions.openAuction(id)
+        return transactor {
+            auctions.openAuction(it, id)
+        }
     }
 
-    fun openedAuctions(): List<Auction> = auctions.openedAuctions()
+    fun openedAuctions(): List<Auction> = transactor { auctions.openedAuctions(it) }
 
     fun closeAuctionFor(auctionId: AuctionId) {
-        auctions.closeAuction(auctionId)
+        transactor {
+            auctions.closeAuction(it, auctionId)
+        }
     }
 
     fun auctionResultFor(auctionId: AuctionId): AuctionResult {
-        val auction = auctions.getAuction(auctionId) ?: return AuctionResult.AuctionNotFound
-        return when (auction.state) {
-            opened -> AuctionResult.AuctionInProgress
-            closed -> {
-                val winningBid = auctions.winningBid(auctionId)?: return AuctionClosedNoWinner
-                AuctionResult.AuctionClosed(winningBid.userId, winningBid.price)
+        return transactor {
+            val auction = auctions.getAuction(it, auctionId) ?: return@transactor AuctionResult.AuctionNotFound
+            when (auction.state) {
+                opened -> AuctionResult.AuctionInProgress
+                closed -> {
+                    val winningBid = auctions.winningBid(it, auctionId) ?: return@transactor AuctionClosedNoWinner
+                    AuctionResult.AuctionClosed(winningBid.userId, winningBid.price)
+                }
             }
         }
     }
 
     fun createAuction(productId: ProductId): AuctionId {
-        val product = products.get(productId)
-        if (product == null) throw IllegalStateException("Auction cannot be crated because product doesn't exist with id: $productId")
+        return transactor {
+            val product = products.get(it, productId)
+                ?: throw IllegalStateException("Auction cannot be crated because product doesn't exist with id: $productId")
 
-        val auctionId = auctions.createAuction(product.productId)
-        return auctionId
+            val auctionId = auctions.createAuction(it, product.productId)
+            auctionId
+        }
     }
 
     fun add(bid: BidWithUser): Boolean {
-        val auction = auctions.getAuction(bid.auctionId) ?: return false
-        if (auction.state == closed)
-            return false
-        return if (bid.price < auction.product.minimumSellingPrice) {
-            false
-        } else {
-            auctions.addBid(bid)
-            true
+        return transactor {
+            val auction = auctions.getAuction(it, bid.auctionId) ?: return@transactor false
+            if (auction.state == closed)
+                return@transactor false
+            if (bid.price < auction.product.minimumSellingPrice) {
+                false
+            } else {
+                auctions.addBid(it, bid)
+                true
+            }
         }
     }
 
@@ -61,7 +79,7 @@ class AuctionHub(val users: Users, val auctions: Auctions, val products: Product
         return if (users.isValid(token)) {
             users.getUserByToken(token)?.userId
         } else
-        null
+            null
     }
 
     fun isValid(token: String?): Boolean = token?.let { users.isValid(token) } == true

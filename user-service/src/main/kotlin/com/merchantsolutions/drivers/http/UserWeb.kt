@@ -22,8 +22,8 @@ import org.http4k.routing.routes
 
 fun UserApi(): RoutingHttpHandler {
     val storage = H2UsersDatabase()
-    val users: H2Users = H2Users()
-    val transactor: H2Transactor = H2Transactor(storage.connection)
+    val users = H2Users()
+    val transactor = H2Transactor(storage.connection)
     return ServerFilters.CatchAll()
         .then(userApp(UserHub(users, transactor)))
 }

@@ -5,7 +5,7 @@ import com.merchantsolutions.SellerActor.Product
 import com.merchantsolutions.adapters.db.*
 import com.merchantsolutions.adapters.users.UsersClient
 import com.merchantsolutions.application.AuctionHub
-import com.merchantsolutions.application.UserHub
+import com.merchantsolutions.db.H2Transactor
 import com.merchantsolutions.domain.AuctionId
 import com.merchantsolutions.domain.Money
 import com.merchantsolutions.domain.Money.Companion.gbp
@@ -13,7 +13,6 @@ import com.merchantsolutions.domain.ProductId
 import com.merchantsolutions.domain.UserId
 import com.merchantsolutions.drivers.http.UserApi
 import com.merchantsolutions.drivers.http.auctionApp
-import com.merchantsolutions.drivers.http.userApp
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.hasElement
@@ -32,9 +31,9 @@ import java.util.UUID
 
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 class AuctionServerTest {
-    private val storage: Storage = H2AuctionDatabase()
-    private val products = H2Products(storage, testing)
-    private val auctions = H2Auctions(storage, testing)
+    private val storage = H2AuctionDatabase()
+    private val products = H2Products(testing)
+    private val auctions = H2Auctions(testing)
     private val userService = UserApi()
 
     @BeforeEach
@@ -42,7 +41,12 @@ class AuctionServerTest {
         storage.truncateTables()
     }
 
-    private val auctionHub = AuctionHub(UsersClient(Uri.of("http://user-service"), userService), auctions, products)
+    private val auctionHub = AuctionHub(
+        UsersClient(Uri.of("http://user-service"), userService),
+        auctions,
+        products,
+        H2Transactor(storage.connection)
+    )
     private val auctionServer = auctionApp(auctionHub)
 
     private val buyerOneId = UserId.of("00000000-0000-0000-0000-000000000001")

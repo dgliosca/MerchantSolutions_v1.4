@@ -5,6 +5,7 @@ import com.merchantsolutions.AuctionJson.json
 import com.merchantsolutions.adapters.db.*
 import com.merchantsolutions.adapters.users.UsersClient
 import com.merchantsolutions.application.AuctionHub
+import com.merchantsolutions.db.H2Transactor
 import com.merchantsolutions.domain.*
 import com.merchantsolutions.domain.AuctionResult.AuctionClosed
 import com.merchantsolutions.domain.AuctionResult.AuctionInProgress
@@ -30,18 +31,20 @@ fun AuctionApi(
     httpHandler: HttpHandler = OkHttp()
 ): RoutingHttpHandler {
     val h2AuctionDatabase = H2AuctionDatabase()
+    val transactor = H2Transactor(h2AuctionDatabase.connection)
     return ServerFilters.CatchAll().then(
         auctionApp(
             AuctionHub(
                 UsersClient(usersUri, httpHandler),
-                H2Auctions(h2AuctionDatabase, production),
-                H2Products(h2AuctionDatabase, production)
+                H2Auctions(production),
+                H2Products(production),
+                transactor
             )
         )
     )
 }
 
-fun auctionApp(auctionHub: AuctionHub): RoutingHttpHandler {
+fun <T> auctionApp(auctionHub: AuctionHub<T>): RoutingHttpHandler {
     val validateTokenFilter = BearerAuth { auctionHub.isValid(it) }
     return validateTokenFilter.then(
         routes(

@@ -1,5 +1,6 @@
 package com.merchantsolutions.adapters.db
 
+import com.merchantsolutions.db.H2Transactor
 import com.merchantsolutions.domain.Money
 import com.merchantsolutions.domain.Money.Companion.gbp
 import com.merchantsolutions.domain.Product
@@ -17,8 +18,9 @@ import java.math.BigDecimal
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class H2ProductsTest {
-    private val storage: Storage = H2AuctionDatabase()
-    private val products = H2Products(storage, testing)
+    private val storage = H2AuctionDatabase()
+    private val products = H2Products(testing)
+    private val transactor = H2Transactor(storage.connection)
 
     @BeforeEach
     fun beforeEach() {
@@ -32,30 +34,34 @@ class H2ProductsTest {
 
     @Test
     fun `add products`() {
-        val product = ProductToRegister("Candle Sticks", Money(gbp, BigDecimal("10.10")))
-        val addedProduct = products.add(product)
-        assertThat(
-            products.get(addedProduct),
-            equalTo(
-                Product(
-                    ProductId.of("00000000-0000-0000-0000-000000000000"),
-                    "Candle Sticks",
-                    product.minimumSellingPrice
+        transactor {
+            val product = ProductToRegister("Candle Sticks", Money(gbp, BigDecimal("10.10")))
+            val addedProduct = products.add(it, product)
+            assertThat(
+                products.get(it, addedProduct),
+                equalTo(
+                    Product(
+                        ProductId.of("00000000-0000-0000-0000-000000000000"),
+                        "Candle Sticks",
+                        product.minimumSellingPrice
+                    )
                 )
             )
-        )
+        }
     }
 
     @Test
     fun `get all products`() {
-        val productOne = ProductToRegister("Candle Sticks", Money(gbp, BigDecimal("10.10")))
-        val productTwo = ProductToRegister("Antique Vase", Money(gbp, BigDecimal("5.10")))
-        products.add(productOne)
-        products.add(productTwo)
+        transactor {
+            val productOne = ProductToRegister("Candle Sticks", Money(gbp, BigDecimal("10.10")))
+            val productTwo = ProductToRegister("Antique Vase", Money(gbp, BigDecimal("5.10")))
+            products.add(it, productOne)
+            products.add(it, productTwo)
 
-        assertThat(
-            products.getProducts(),
-            hasSize(equalTo(2))
-        )
+            assertThat(
+                products.getProducts(it),
+                hasSize(equalTo(2))
+            )
+        }
     }
 }
